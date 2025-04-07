@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>M3U8 Playlist Group Sorter</title>
+    <style>
+        .container {
+            max-width: calc(100% - 360px); /* Уменьшаем максимальную ширину */
+            margin: 20px 20px 20px 320px;  /* Change right margin to left margin */
+            padding: 20px; /* Уменьшаем padding */
+            font-family: Arial, sans-serif;
+            background: #f8f9fa;
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            border-radius: 10px;
+        }
+
+        /* Add styles for categories panel */
+        .categories-panel {
+            position: fixed;
+            left: 20px; /* Change from right to left */
+            top: 50%; /* Change from fixed top to 50% */
+            transform: translateY(-50%); /* Add this to center vertically */
+            width: 260px; /* Уменьшаем ширину панели */
+            max-height: 80vh; /* Change to percentage of viewport height */
+            background: #fff;
+            border: 1px solid #81c784;
+            border-radius: 10px;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .categories-panel h2 {
+            margin: 0 0 15px 0;
+            color: #343a40;
+            font-size: 18px;
+        }
+
+        .category-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #e8f5e9;
+            border: 1px solid #81c784;
+            border-radius: 4px;
+            cursor: grab;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .category-item:hover {
+            background: #c8e6c9;
+        }
+
+        .category-item:active {
+            cursor: grabbing !important;
+        }
+
+        .category-item.dragging {
+            opacity: 0.5;
+            background: #c8e6c9;
+            border: 2px dashed #81c784;
+        }
+
+        .category-item.drag-over {
+            background: #a5d6a7;
+            border-style: dashed;
+        }
+
+        .category-drag-info {
+            margin-top: 10px;
+            padding: 10px;
+            color: #666;
+            font-size: 14px;
+            border-top: 1px solid #eee;
+        }
+
+        .playlist-item {
+            background: #e8f5e9;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border: 1px solid #81c784;
+            border-radius: 4px;
+            cursor: grab;
+            user-select: none;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            color: #495057;
+        }
+
+        .playlist-item:active {
+            cursor: grabbing;  /* При активном перетаскивании меняем на "хватающую" руку */
+        }
+
+        .playlist-item:hover {
+            background: #c8e6c9;
+            transform: translateX(5px);
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+            border-color: #81c784;
+        }
+
+        .playlist-item.dragging {
+            background: #fff;
+            border: 2px solid #2196F3;
+            opacity: 0.8;
+            box-shadow: 0 0 10px rgba(33, 150, 243, 0.3);
+        }
+
+        .drop-placeholder {
+            height: 40px;
+            background: linear-gradient(to right, rgba(129, 199, 132, 0.1), rgba(129, 199, 132, 0.05));
+            border: 2px dashed #81c784;
+            border-radius: 4px;
+            margin: 10px 0;
+            pointer-events: none;
+            position: relative;
+            z-index: 1;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        .playlist-container {
+            min-height: 50px;
+            background: #f1f8e9;
+            border: 1px solid #dcedc8;
+            border-radius: 6px;
+            padding: 10px; /* Уменьшаем padding */
+            margin-top: 5px; /* Уменьшаем margin */
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .playlist-container::before {
+            content: '';
+            display: block;
+            height: 10px;
+        }
+
+        .playlist-container::after {
+            content: '';
+            display: block;
+            height: 10px;
+        }
+
+        .playlist-container.drag-over {
+            background: linear-gradient(to bottom, #f1f8e9, #e8f5e9);
+            border-color: #81c784;
+            box-shadow: inset 0 0 5px rgba(129, 199, 132, 0.2);
+        }
+
+        .controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: linear-gradient(to right, #f8f9fa, #ffffff);
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filename {
+            margin-left: 10px;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 300px;
+        }
+
+        .group-container {
+            background: #ffffff;
+            border: 1px solid #81c784;
+            border-radius: 8px;
+            margin: 15px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .group-title {
+            background: #e8f5e9;
+            padding: 12px 15px;
+            border-bottom: 1px solid #81c784;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            cursor: pointer;
+            user-select: none;
+            color: #343a40;
+            transition: all 0.2s ease;
+        }
+
+        .group-title::before {
+            content: '▼';
+            display: inline-block;
+            margin-right: 5px;
+            transition: transform 0.2s;
+        }
+
+        .group-title:hover {
+            background: #c8e6c9;
+        }
+
+        .group-container.collapsed .group-title::before {
+            transform: rotate(-90deg);
+        }
+
+        .group-container.collapsed .playlist-container {
+            display: none;
+        }
+
+        .drop-indicator {
+            position: absolute;
+            height: 2px;
+            background-color: #2196F3;
+            display: none;
+            pointer-events: none;
+        }
+
+        .floating-drag-element {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+            background: #ffffff;
+            padding: 12px 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: auto;
+            font-family: Arial, sans-serif;
+            transform: translate(-50%, -50%);
+        }
+
+        .playlist-item.dragging {
+            opacity: 0; /* Полностью скрываем исходный элемент */
+            visibility: hidden; /* Дополнительно скрываем для предотвращения взаимодействия */
+        }
+
+        button, input[type="file"]::file-selector-button {
+            padding: 8px 16px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        button:hover, input[type="file"]::file-selector-button:hover {
+            background: #1976D2;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        input[type="file"]::file-selector-button {
+            font-family: Arial, sans-serif;
+            content: "";
+        }
+
+        input[type="file"]::before {
+            content: "Open Playlist";
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 100%; /* Make button take full width */
+            padding: 8px 16px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        input[type="file"] {
+            position: relative;
+            height: 35px;
+            width: 120px;
+            overflow: hidden;
+            cursor: pointer;
+            color: transparent; /* Hide the file name text */
+        }
+
+        input[type="file"]::-webkit-file-upload-button {
+            visibility: hidden;
+        }
+
+        .tooltip {
+            position: fixed;
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 1000;
+            pointer-events: none;
+            max-width: 300px;
+            word-wrap: break-word;
+            transform: translate(10px, -50%); /* Смещаем от курсора */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>M3U8 Playlist Group Sorter</h1>
+        
+        <div class="controls">
+            <input type="file" id="playlistFile" accept=".m3u8">
+            <span class="filename"></span>
+            <button onclick="savePlaylist()">Save Playlist</button>
+            <span id="dragInfo"></span>
+        </div>
+
+        <div id="groupsContainer"></div>
+    </div>
+
+    <div class="categories-panel">
+        <h2>Categories</h2>
+        <div id="categoriesList"></div>
+        <div id="categoryDragInfo" class="category-drag-info"></div>
+    </div>
+
+    <script>
+        const DEBUG = false; // Флаг для включения/выключения отладки
+        
+        function debug(...args) {
+            if (DEBUG) {
+                console.log(...args);
+            }
+        }
+
+        let playlistItems = [];
+        let groupOrder = [];
+        let autoScrollInterval = null;
+        const SCROLL_SPEED = 10; // Пикселей за интервал
+        const SCROLL_THRESHOLD = 50; // Расстояние от края для начала прокрутки
+        let lastDragGroups = null;
+
+        document.getElementById('playlistFile').addEventListener('change', handleFileSelect);
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Очищаем все данные перед загрузкой
+            playlistItems = [];
+            groupOrder = [];
+            const groupsContainer = document.getElementById('groupsContainer');
+            const categoriesList = document.getElementById('categoriesList');
+            const categoryDragInfo = document.getElementById('categoryDragInfo');
+            const dragInfo = document.getElementById('dragInfo');
+            
+            groupsContainer.innerHTML = '';
+            categoriesList.innerHTML = '';
+            categoryDragInfo.textContent = '';
+            dragInfo.textContent = '';
+            document.querySelector('.filename').textContent = file.name;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                parsePlaylist(content);
+            };
+            reader.readAsText(file);
+        }
+
+        function parsePlaylist(content) {
+            const lines = content.split('\n');
+            playlistItems = [];
+            groupOrder = []; 
+            
+            let currentItem = null;
+            let currentGroup = '';
+
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i].trim();
+                if (!line) continue;
+
+                if (line.startsWith('#EXTINF:')) {
+                    currentItem = {
+                        info: line,
+                        url: '',
+                        group: currentGroup
+                    };
+
+                    if (i + 1 < lines.length && lines[i + 1].trim().startsWith('#EXTGRP:')) {
+                        currentGroup = lines[i + 1].trim().substring(8).trim();
+                        if (!groupOrder.includes(currentGroup)) {
+                            groupOrder.push(currentGroup);
+                        }
+                        currentItem.group = currentGroup;
+                        currentItem.info += '\n' + lines[i + 1];
+                        i++;
+                    }
+                } else if (!line.startsWith('#')) {
+                    if (currentItem) {
+                        currentItem.url = line;
+                        if (!currentItem.group) {
+                            currentItem.group = 'Ungrouped';
+                        }
+                        playlistItems.push({...currentItem});
+                        currentItem = null;
+                    } else {
+                        playlistItems.push({
+                            info: '',
+                            url: line,
+                            group: currentGroup || 'Ungrouped'
+                        });
+                    }
+                }
+            }
+
+            debug('=== Playlist loaded ===');
+            groupOrder.forEach(group => {
+                const items = playlistItems.filter(item => item.group === group);
+                debug(`Group ${group}:`, items.map(item => ({
+                    title: item.info.match(/,(.+?)(?:\r?\n|$)/)[1].trim(),
+                    group: item.group
+                })));
+            });
+
+            renderGroups();
+        }
+
+        function renderGroups() {
+            // Сначала готовим группы
+            const groups = groupOrder.reduce((acc, groupName) => {
+                acc[groupName] = playlistItems.filter(item => item.group === groupName);
+                return acc;
+            }, {});
+
+            // Рендерим категории
+            const categoriesList = document.getElementById('categoriesList');
+            categoriesList.innerHTML = '';
+            
+            groupOrder.forEach(groupName => {
+                const items = groups[groupName];
+                if (!items || !items.length) return;
+                
+                const categoryItem = document.createElement('div');
+                categoryItem.className = 'category-item';
+                categoryItem.textContent = `${groupName} (${items.length})`;
+                categoryItem.dataset.group = groupName;
+                categoryItem.draggable = true;
+                
+                // Добавляем все обработчики...
+                categoryItem.addEventListener('dragover', handleCategoryItemDragOver);
+                categoryItem.addEventListener('dragenter', handleCategoryItemDragEnter);
+                categoryItem.addEventListener('dragleave', handleCategoryItemDragLeave);
+                categoryItem.addEventListener('drop', handleCategoryItemDrop);
+                
+                // Существующие обработчики
+                categoryItem.addEventListener('click', handleCategoryClick);
+                categoryItem.addEventListener('dragstart', handleCategoryDragStart);
+                categoryItem.addEventListener('dragend', handleCategoryDragEnd);
+                categoryItem.addEventListener('dragover', handleCategoryDragOver);
+                
+                categoriesList.appendChild(categoryItem);
+            });
+
+            // Рендерим каналы
+            const container = document.getElementById('groupsContainer');
+            container.innerHTML = '';
+
+            groupOrder.forEach(groupName => {
+                const items = groups[groupName];
+                if (!items || !items.length) return;
+
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'group-container';
+                
+                const titleDiv = document.createElement('div');
+                titleDiv.className = 'group-title';
+                titleDiv.textContent = `${groupName} (${items.length})`;
+                titleDiv.onclick = () => groupDiv.classList.toggle('collapsed');
+                groupDiv.appendChild(titleDiv);
+
+                const playlistDiv = document.createElement('div');
+                playlistDiv.className = 'playlist-container';
+                playlistDiv.dataset.group = groupName;
+                
+                playlistDiv.addEventListener('dragover', handleDragOver);
+                playlistDiv.addEventListener('drop', handleDrop);
+
+                items.forEach((item, index) => {
+                    const element = document.createElement('div');
+                    element.className = 'playlist-item';
+                    element.draggable = true;
+                    element.dataset.url = item.url; // Используем URL как идентификатор
+                    element.dataset.group = groupName;
+
+                    const titleMatch = item.info.match(/,(.+?)(?:\r?\n|$)/);
+                    const title = titleMatch ? titleMatch[1].trim() : item.url;
+                    element.textContent = title;
+
+                    element.addEventListener('dragstart', handleDragStart);
+                    element.addEventListener('dragend', handleDragEnd);
+                    element.addEventListener('mousemove', handleItemHover);
+                    element.addEventListener('mouseleave', handleItemLeave);
+
+                    playlistDiv.appendChild(element);
+                });
+
+                groupDiv.appendChild(playlistDiv);
+                container.appendChild(groupDiv);
+            });
+        }
+
+        // Добавляем новую функцию для обработки клика по категории
+        function handleCategoryClick(e) {
+            const selectedGroup = e.target.dataset.group;
+            
+            // Находим все группы
+            const allGroups = document.querySelectorAll('.group-container');
+            let targetGroup = null;
+            
+            // Сворачиваем все группы кроме выбранной и находим целевую группу
+            allGroups.forEach(group => {
+                const groupTitle = group.querySelector('.group-title');
+                const groupName = groupTitle.textContent.split(' (')[0];
+                
+                if (groupName === selectedGroup) {
+                    group.classList.remove('collapsed');
+                    targetGroup = group;
+                } else {
+                    group.classList.add('collapsed');
+                }
+            });
+
+            // Прокручиваем к выбранной группе если она найдена
+            if (targetGroup) {
+                targetGroup.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                // Добавляем небольшой отступ сверху
+                const headerOffset = 20;
+                const elementPosition = targetGroup.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        function handleDragStart(e) {
+            e.dataTransfer.effectAllowed = 'move';
+            e.target.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', JSON.stringify({
+                type: 'item', // Добавляем тип для различения каналов и категорий
+                url: e.target.dataset.url,
+                group: e.target.dataset.group
+            }));
+
+            document.querySelectorAll('.playlist-container').forEach(container => {
+                container.addEventListener('dragenter', handleDragEnter);
+                container.addEventListener('dragleave', handleDragLeave);
+            });
+
+            const groupItems = playlistItems.filter(item => item.group === e.target.dataset.group);
+            const dragInfo = `Элемент ${groupItems.findIndex(item => item.url === e.target.dataset.url) + 1} из ${groupItems.length}`;
+            document.getElementById('dragInfo').textContent = dragInfo;
+            
+            debug('=== Начальное состояние ===');
+            debug('Группа:', e.target.dataset.group);
+            debug('Элементы группы:', JSON.stringify(groupItems, null, 2));
+
+            // Store the source group
+            lastDragGroups = {
+                from: e.target.dataset.group
+            };
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            if (e.relatedTarget && !e.currentTarget.contains(e.relatedTarget)) {
+                e.currentTarget.classList.remove('drag-over');
+            }
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            startAutoScroll(e);
+            
+            const container = e.target.closest('.playlist-container');
+            if (!container) return;
+
+            const dragElement = document.querySelector('.dragging');
+            if (!dragElement) return;
+
+            const items = Array.from(container.children)
+                .filter(el => el.classList.contains('playlist-item'));
+            
+            const mouseY = e.clientY;
+            let insertBefore = null;
+            
+            // Находим элемент, перед которым нужно вставить
+            for (const item of items) {
+                const rect = item.getBoundingClientRect();
+                if (mouseY < rect.top + rect.height / 2) {
+                    insertBefore = item;
+                    break;
+                }
+            }
+
+            // Определяем позицию для отображения
+            const insertIndex = insertBefore ? items.indexOf(insertBefore) : items.length;
+            
+            if (container.dataset.group === dragElement.dataset.group) {
+                // Если перемещаем в той же группе
+                const currentIndex = items.findIndex(item => 
+                    item.dataset.url === dragElement.dataset.url
+                );
+                if (currentIndex !== -1) {
+                    // Корректируем индекс с учетом удаления текущего элемента
+                    const displayPosition = insertIndex > currentIndex ? insertIndex : insertIndex + 1;
+                    document.getElementById('dragInfo').textContent = 
+                        `Перемещение на позицию ${displayPosition} из ${items.length}`;
+                }
+            } else {
+                // Если перемещаем в другую группу
+                document.getElementById('dragInfo').textContent = 
+                    `Вставка в позицию ${insertIndex + 1} из ${items.length + 1}`;
+            }
+
+            // Обрабатываем плейсхолдер
+            const oldPlaceholder = document.querySelector('.drop-placeholder');
+            if (oldPlaceholder) oldPlaceholder.remove();
+            
+            const placeholder = document.createElement('div');
+            placeholder.className = 'drop-placeholder';
+            
+            if (insertBefore) {
+                container.insertBefore(placeholder, insertBefore);
+            } else {
+                container.appendChild(placeholder);
+            }
+        }
+
+        function handleDragEnd(e) {
+            stopAutoScroll();
+            e.target.classList.remove('dragging');
+            
+            const placeholder = document.querySelector('.drop-placeholder');
+            if (placeholder) placeholder.remove();
+
+            document.querySelectorAll('.playlist-container').forEach(container => {
+                container.removeEventListener('dragenter', handleDragEnter);
+                container.removeEventListener('dragleave', handleDragLeave);
+                container.classList.remove('drag-over');
+            });
+
+            document.getElementById('dragInfo').textContent = '';
+        }
+
+        function createPlaceholder() {
+            const oldPlaceholder = document.querySelector('.drop-placeholder');
+            if (oldPlaceholder) oldPlaceholder.remove();
+            
+            const placeholder = document.createElement('div');
+            placeholder.className = 'drop-placeholder';
+            return placeholder;
+        }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.playlist-item:not(.dragging)')];
+            
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        let tooltip = null;
+
+        function handleItemHover(e) {
+            if (!DEBUG) return;
+            
+            const item = e.target;
+            const url = item.dataset.url;
+            
+            const playlistItem = playlistItems.find(pi => pi.url === url);
+            if (!playlistItem) return;
+
+            if (!tooltip) {
+                tooltip = document.createElement('div');
+                tooltip.className = 'tooltip';
+                document.body.appendChild(tooltip);
+            }
+
+            tooltip.innerHTML = `
+                Group: ${playlistItem.group}<br>
+                Info: ${playlistItem.info}<br>
+                URL: ${playlistItem.url}
+            `;
+
+            tooltip.style.left = e.clientX + 'px';
+            tooltip.style.top = e.clientY + 'px';
+        }
+
+        function handleItemLeave() {
+            if (tooltip) {
+                tooltip.remove();
+                tooltip = null;
+            }
+        }
+
+        function updateItemGroup(url, newGroup) {
+            const item = playlistItems.find(item => item.url === url);
+            if (!item) return;
+
+            item.group = newGroup;
+            if (!item.info) {
+                item.info = `#EXTINF:-1,Unknown\n#EXTGRP:${newGroup}`;
+            } else if (item.info.includes('#EXTGRP:')) {
+                item.info = item.info.replace(/#EXTGRP:.*(\r?\n|$)/, `#EXTGRP:${newGroup}\n`);
+            } else {
+                item.info = item.info.trim() + `\n#EXTGRP:${newGroup}`;
+            }
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            stopAutoScroll();
+            
+            const container = e.target.closest('.playlist-container');
+            if (!container) return;
+
+            // Store current collapse states
+            const collapsedGroups = new Set();
+            document.querySelectorAll('.group-container').forEach(group => {
+                if (group.classList.contains('collapsed')) {
+                    const groupName = group.querySelector('.group-title').textContent.split(' (')[0];
+                    collapsedGroups.add(groupName);
+                }
+            });
+            
+            // Store the target group
+            lastDragGroups = {
+                ...lastDragGroups,
+                to: container.dataset.group
+            };
+            
+            // Store scroll position BEFORE any DOM changes
+            const scrollPosition = window.pageYOffset;
+            
+            const dragData = JSON.parse(e.dataTransfer.getData('text/plain'));
+            const fromGroup = dragData.group;
+            const toGroup = container.dataset.group;
+            const url = dragData.url;
+            
+            const placeholder = document.querySelector('.drop-placeholder');
+            if (!placeholder) return;
+
+            // Находим индекс перемещаемого элемента
+            const itemIndex = playlistItems.findIndex(item => item.url === url);
+            if (itemIndex === -1) return;
+
+            // Определяем позицию для вставки относительно видимых элементов
+            const visibleItems = Array.from(container.children)
+                .filter(el => el.classList.contains('playlist-item'));
+            
+            const insertBefore = visibleItems.find(item =>
+                placeholder.compareDocumentPosition(item) & Node.DOCUMENT_POSITION_FOLLOWING);
+            
+            const insertIndex = insertBefore ? visibleItems.indexOf(insertBefore) : visibleItems.length;
+
+            // Создаем новый объект с обновленной группой
+            const movedItem = {
+                ...playlistItems[itemIndex],
+                group: toGroup
+            };
+
+            // Обновляем информацию о группе
+            movedItem.info = movedItem.info.includes('#EXTGRP:') 
+                ? movedItem.info.replace(/#EXTGRP:.*(\r?\n|$)/, `#EXTGRP:${toGroup}\r\n`)
+                : movedItem.info.trim() + `\n#EXTGRP:${toGroup}\r\n`;
+
+            // Находим индекс начала целевой группы 
+            const groupStartIndex = playlistItems.findIndex(item => item.group === toGroup);
+            const finalInsertIndex = groupStartIndex + insertIndex;
+
+            debug('=== Drop details ===');
+            debug('From group:', fromGroup);
+            debug('To group:', toGroup); 
+            debug('Insert index:', insertIndex);
+            debug('Group start:', groupStartIndex);
+            debug('Final index:', finalInsertIndex);
+
+            // Удаляем элемент из старого места
+            playlistItems.splice(itemIndex, 1);
+            
+            // Корректируем индекс вставки если удаляем элемент перед местом вставки
+            const adjustedIndex = itemIndex < finalInsertIndex ? finalInsertIndex - 1 : finalInsertIndex;
+            
+            // Вставляем элемент в новую позицию
+            playlistItems.splice(adjustedIndex, 0, movedItem);
+            
+            renderGroups();
+
+            // Restore collapse states
+            document.querySelectorAll('.group-container').forEach(group => {
+                const groupName = group.querySelector('.group-title').textContent.split(' (')[0];
+                if (collapsedGroups.has(groupName)) {
+                    group.classList.add('collapsed');
+                } else if (lastDragGroups && (groupName === lastDragGroups.from || groupName === lastDragGroups.to)) {
+                    group.classList.remove('collapsed');
+                }
+            });
+            
+            // Restore scroll position AFTER render
+            window.scrollTo(0, scrollPosition);
+            
+            return false;
+        }
+
+        async function savePlaylist() {
+            let content = '#EXTM3U\r\n';  // Используем \r\n для совместимости
+            
+            debug('=== Before saving ===');
+            debug('Group order:', groupOrder);
+            debug('Playlist items:', 
+                playlistItems.map(item => ({
+                    title: item.info.match(/,(.+?)(?:\r?\n|$)/)[1].trim(),
+                    group: item.group
+                }))
+            );
+
+            // Обрабатываем группы в том порядке, в котором они находятся в groupOrder
+            for (const groupName of groupOrder) {
+                // Получаем все элементы группы в порядке их следования в массиве
+                const groupItems = playlistItems.filter(item => item.group === groupName);
+                
+                // Сохраняем каждый элемент группы
+                groupItems.forEach(item => {
+                    if (item.info) {
+                        // Разделяем строки инфо, чтобы правильно обработать EXTGRP
+                        const infoLines = item.info.split(/\r?\n/);
+                        const extinf = infoLines[0];
+                        content += extinf + '\r\n';
+                        
+                        // Добавляем или обновляем EXTGRP
+                        if (infoLines.length > 1 && infoLines[1].startsWith('#EXTGRP:')) {
+                            content += `#EXTGRP:${item.group}\r\n`;
+                        } else {
+                            content += `#EXTGRP:${item.group}\r\n`;
+                        }
+                    }
+                    
+                    if (item.url) {
+                        content += item.url + '\r\n';
+                    }
+                });
+            }
+
+            debug('=== Generated content ===');
+            debug(content);
+
+            // ...rest of save function...
+            if (window.showSaveFilePicker) {
+                try {
+                    const handle = await window.showSaveFilePicker({
+                        suggestedName: 'playlist_sorted.m3u8',
+                        types: [{
+                            description: 'M3U8 Playlist',
+                            accept: {'text/plain': ['.m3u8']}
+                        }],
+                    });
+                    
+                    const writable = await handle.createWritable();
+                    await writable.write(content);
+                    await writable.close();
+
+                    // Выводим в консоль для проверки
+                    debug('=== Saved content ===');
+                    debug(content);
+                } catch (err) {
+                    console.error('Failed to save using modern API:', err);
+                    fallbackSave(content);
+                }
+            } else {
+                fallbackSave(content);
+            }
+
+            debug('=== Generated content ===');
+            debug(content);
+        }
+
+        function fallbackSave(content) {
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'playlist_sorted.m3u8';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function handleCategoryDragStart(e) {
+            const item = e.target;
+            if (!item.classList.contains('category-item')) return;
+            
+            e.dataTransfer.effectAllowed = 'move';
+            item.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', JSON.stringify({
+                type: 'category',
+                group: item.dataset.group
+            }));
+
+            const currentIndex = groupOrder.indexOf(item.dataset.group);
+            const totalCount = groupOrder.length;
+            document.getElementById('categoryDragInfo').textContent = 
+                `Захват категории ${currentIndex + 1} из ${totalCount}`;
+        }
+
+        function handleCategoryDragOver(e) {
+            e.preventDefault();
+            startAutoScroll(e);
+
+            const container = document.getElementById('categoriesList');
+            const draggingElement = document.querySelector('.category-item.dragging');
+            if (!draggingElement) return;
+
+            const items = Array.from(container.children).filter(el => 
+                el.classList.contains('category-item') && !el.classList.contains('dragging')
+            );
+            
+            const mouseY = e.clientY;
+            let targetItem = null;
+
+            // Находим позицию для вставки с учетом смещения
+            const currentIndex = groupOrder.indexOf(draggingElement.dataset.group);
+            let targetIndex = items.length;
+
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                const rect = item.getBoundingClientRect();
+                
+                // Используем 3/4 высоты элемента как точку перехода
+                if (mouseY < rect.top + (rect.height * 0.75)) {
+                    targetIndex = i;
+                    targetItem = item;
+                    break;
+                }
+            }
+
+            // Отображаемый индекс должен совпадать с реальной позицией вставки
+            const displayIndex = targetIndex + 1;
+
+            document.getElementById('categoryDragInfo').textContent = 
+                `Перемещение категории ${currentIndex + 1} → ${displayIndex} из ${groupOrder.length}`;
+
+            // Обновляем placeholder только если позиция изменилась
+            const oldPlaceholder = container.querySelector('.drop-placeholder');
+            if (oldPlaceholder) {
+                const nextAfterPlaceholder = oldPlaceholder.nextElementSibling;
+                if (nextAfterPlaceholder === targetItem) return;
+                oldPlaceholder.remove();
+            }
+
+            const placeholder = document.createElement('div');
+            placeholder.className = 'drop-placeholder';
+
+            if (targetItem) {
+                container.insertBefore(placeholder, targetItem);
+            } else {
+                container.appendChild(placeholder);
+            }
+        }
+
+        function handleCategoryDragEnd(e) {
+            const draggingElement = e.target;
+            draggingElement.classList.remove('dragging');
+            
+            const placeholder = document.querySelector('.drop-placeholder');
+            if (placeholder) {
+                const container = document.getElementById('categoriesList');
+                const items = Array.from(container.children).filter(el => 
+                    el.classList.contains('category-item') || el === placeholder
+                );
+                
+                const group = draggingElement.dataset.group;
+                const currentIndex = groupOrder.indexOf(group);
+                const placeholderIndex = items.indexOf(placeholder);
+                
+                // Корректируем индекс вставки с учетом текущей позиции
+                const finalIndex = currentIndex < placeholderIndex ? placeholderIndex - 1 : placeholderIndex;
+                
+                // Обновляем порядок групп
+                groupOrder = groupOrder.filter(g => g !== group);
+                groupOrder.splice(finalIndex, 0, group);
+                
+                placeholder.remove();
+                renderGroups();
+            }
+            
+            document.getElementById('categoryDragInfo').textContent = '';
+        }
+
+        // Добавляем новые функции для обработки drop на категории
+        function handleCategoryItemDragOver(e) {
+            // Проверяем, что перетаскивается канал, а не категория
+            const dragData = JSON.parse(e.dataTransfer.getData('text/plain') || '{}');
+            if (!dragData.type || dragData.type === 'category') return;
+            
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function handleCategoryItemDragEnter(e) {
+            const dragData = JSON.parse(e.dataTransfer.getData('text/plain') || '{}');
+            if (!dragData.type || dragData.type === 'category') return;
+            
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function handleCategoryItemDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleCategoryItemDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const dragData = JSON.parse(e.dataTransfer.getData('text/plain') || '{}');
+            if (!dragData.type || dragData.type === 'category') return;
+            
+            const fromGroup = dragData.group;
+            const toGroup = e.currentTarget.dataset.group;
+            const url = dragData.url;
+            
+            if (fromGroup === toGroup) return;
+            
+            // Находим индекс перемещаемого элемента
+            const itemIndex = playlistItems.findIndex(item => item.url === url);
+            if (itemIndex === -1) return;
+            
+            // Создаем копию элемента и обновляем его группу
+            const movedItem = {
+                ...playlistItems[itemIndex],
+                group: toGroup,
+                info: playlistItems[itemIndex].info.includes('#EXTGRP:') 
+                    ? playlistItems[itemIndex].info.replace(/#EXTGRP:.*(\r?\n|$)/, `#EXTGRP:${toGroup}\n`)
+                    : playlistItems[itemIndex].info.trim() + `\n#EXTGRP:${toGroup}`
+            };
+
+            // Удаляем элемент из массива
+            playlistItems.splice(itemIndex, 1);
+
+            // Находим последний элемент целевой группы
+            const lastGroupIndex = playlistItems.reduce((last, item, idx) => 
+                item.group === toGroup ? idx + 1 : last, 0);
+
+            // Вставляем элемент после последнего элемента группы
+            playlistItems.splice(lastGroupIndex, 0, movedItem);
+
+            debug('=== After category drop ===');
+            groupOrder.forEach(group => {
+                const items = playlistItems.filter(item => item.group === group);
+                debug(`Group ${group}:`, items.map(item => ({
+                    title: item.info.match(/,(.+?)(?:\r?\n|$)/)[1].trim(),
+                    group: item.group
+                })));
+            });
+
+            renderGroups();
+            return false;
+        }
+
+        function startAutoScroll(e) {
+            if (autoScrollInterval) return;
+
+            const container = document.querySelector('.container');
+            const containerRect = container.getBoundingClientRect();
+            
+            if (e.clientY - containerRect.top < SCROLL_THRESHOLD) {
+                // Scroll up
+                autoScrollInterval = setInterval(() => {
+                    container.scrollTop -= SCROLL_SPEED;
+                }, 16);
+            } else if (containerRect.bottom - e.clientY < SCROLL_THRESHOLD) {
+                // Scroll down
+                autoScrollInterval = setInterval(() => {
+                    container.scrollTop += SCROLL_SPEED;
+                }, 16);
+            }
+        }
+
+        function stopAutoScroll() {
+            if (autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
+            }
+        }
+    </script>
+</body>
+</html>

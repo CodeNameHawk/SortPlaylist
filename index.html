@@ -5,8 +5,8 @@
     <title>M3U8 Playlist Group Sorter</title>
     <style>
         .container {
-            max-width: calc(100% - 360px); /* Уменьшаем максимальную ширину */
-            margin: 20px 20px 20px 320px;  /* Change right margin to left margin */
+            max-width: calc(100% - 680px); /* Уменьшаем максимальную ширину */
+            margin: 20px 280px 20px 320px;  /* Change right margin to left margin */
             padding: 20px; /* Уменьшаем padding */
             font-family: Arial, sans-serif;
             background: #f8f9fa;
@@ -335,6 +335,46 @@
             transform: translate(10px, -50%); /* Смещаем от курсора */
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
+        /* Styles for the buffer panel */
+        .buffer-panel {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 260px;
+            max-height: 80vh;
+            background: #fff;
+            border: 1px solid #ffcdd2; /* Red lighten-3 */
+            border-radius: 10px;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .buffer-panel h2 {
+            margin: 0 0 15px 0;
+            color: #343a40;
+            font-size: 18px;
+        }
+
+        #bufferList {
+            min-height: 50px;
+            background: #ffebee; /* Red lighten-5 */
+            border: 1px solid #ef9a9a; /* Red lighten-3 */
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 5px;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        #bufferList.drag-over {
+            background: linear-gradient(to bottom, #ffebee, #ffcdd2); /* Red lighten-5 to lighten-4 */
+            border-color: #ef9a9a; /* Red lighten-3 */
+            box-shadow: inset 0 0 5px rgba(255, 205, 210, 0.2); /* Red lighten-4 with opacity */
+        }		
     </style>
 </head>
 <body>
@@ -359,6 +399,12 @@
         <button onclick="openSortDialog()" style="margin-top: auto;">Sort</button> <!-- Sort button -->
     </div>
 
+    <!-- Buffer Panel -->
+    <div class="buffer-panel">
+        <h2>Buffer</h2>
+        <div id="bufferList" class="playlist-container" data-group="Buffer"></div>
+    </div>
+
     <!-- Sorting Modal -->
     <div id="sortDialog" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;">
         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 5px;">
@@ -376,8 +422,7 @@
                 <li class="suffix-item" draggable="true">HD</li>
                 <li class="suffix-item" draggable="true">FHD</li>
                 <li class="suffix-item" draggable="true">UHD</li>
-                <li class="suffix-item" draggable="true">HD Orig</li>
-                <li class="suffix-item" draggable="true">Orig</li>
+                <li class="suffix-item" draggable="true">orig</li>
                 <li class="suffix-item" draggable="true">+0</li>
                 <li class="suffix-item" draggable="true">+1</li>
                 <li class="suffix-item" draggable="true">+2</li>
@@ -487,6 +532,13 @@
                 }
             }
 
+
+            // Ensure 'Buffer' group exists
+            if (!groupOrder.includes('Buffer')) {
+                groupOrder.push('Buffer');
+            }
+
+
             debug('=== Playlist loaded ===');
             groupOrder.forEach(group => {
                 const items = playlistItems.filter(item => item.group === group);
@@ -590,6 +642,37 @@
                 groupDiv.appendChild(playlistDiv);
                 container.appendChild(groupDiv);
             });
+
+
+            // Render Buffer List
+            const bufferList = document.getElementById('bufferList');
+            bufferList.innerHTML = '';
+            const bufferItems = groups['Buffer'] || [];
+
+            // Add drag and drop event listeners to the bufferList
+            bufferList.addEventListener('dragover', handleDragOver);
+            bufferList.addEventListener('drop', handleDrop);
+
+            bufferItems.forEach(item => {
+                const element = document.createElement('div');
+                element.className = 'playlist-item';
+                element.draggable = true;
+                element.dataset.url = item.url;
+                element.dataset.group = 'Buffer';
+
+                const titleMatch = item.info.match(/,(.+?)(?:\r?\n|$)/);
+                const title = titleMatch ? titleMatch[1].trim() : item.url;
+                element.textContent = title;
+
+                element.addEventListener('dragstart', handleDragStart);
+                element.addEventListener('dragend', handleDragEnd);
+                element.addEventListener('mousemove', handleItemHover);
+                element.addEventListener('mouseleave', handleItemLeave);
+                element.addEventListener('click', handlePlaylistItemClick);
+
+                bufferList.appendChild(element);
+            });
+
 
             // Set the first category as active after rendering
             if (groupOrder.length > 0) {

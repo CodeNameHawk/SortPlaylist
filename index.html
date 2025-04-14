@@ -580,7 +580,7 @@
                 categoryItem.dataset.group = groupName;
                 categoryItem.draggable = true;
                 
-                // Добавляем все обработчики...
+                // Добавляем все обработчики... Перемещение канала в группу.
                 categoryItem.addEventListener('dragover', handleCategoryItemDragOver);
                 categoryItem.addEventListener('dragenter', handleCategoryItemDragEnter);
                 categoryItem.addEventListener('dragleave', handleCategoryItemDragLeave);
@@ -1135,10 +1135,14 @@
                 group: item.dataset.group
             }));
 
+            setTimeout(() => {
+                e.target.style.display = 'none'; // Temporarily hide the dragged element
+            }, 0);
+
             const currentIndex = groupOrder.indexOf(item.dataset.group);
             const totalCount = groupOrder.length;
-            document.getElementById('categoryDragInfo').textContent = 
-                `Захват категории ${currentIndex + 1} из ${totalCount}`;
+            // document.getElementById('categoryDragInfo').textContent = 
+            //     `Захват категории ${currentIndex + 1} из ${totalCount - 1}`;
         }
 
         function handleCategoryDragOver(e) {
@@ -1164,8 +1168,8 @@
                 const item = items[i];
                 const rect = item.getBoundingClientRect();
                 
-                // Используем 3/4 высоты элемента как точку перехода
-                if (mouseY < rect.top + (rect.height * 0.75)) {
+                // Используем 1/2 высоты элемента как точку перехода
+                if (mouseY < rect.top + (rect.height * 0.5)) {
                     targetIndex = i;
                     targetItem = item;
                     break;
@@ -1175,8 +1179,8 @@
             // Отображаемый индекс должен совпадать с реальной позицией вставки
             const displayIndex = targetIndex + 1;
 
-            document.getElementById('categoryDragInfo').textContent = 
-                `Перемещение категории ${currentIndex + 1} → ${displayIndex} из ${groupOrder.length}`;
+            // document.getElementById('categoryDragInfo').textContent = 
+            //     `Перемещение категории ${currentIndex + 1} → ${displayIndex} из ${groupOrder.length - 1}`;
 
             // Обновляем placeholder только если позиция изменилась
             const oldPlaceholder = container.querySelector('.drop-placeholder');

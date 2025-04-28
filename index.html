@@ -4,27 +4,202 @@
     <meta charset="UTF-8">
     <title>M3U8 Playlist Group Sorter</title>
     <style>
-        .container {
-            max-width: calc(100% - 680px); /* Уменьшаем максимальную ширину */
-            margin: 20px 280px 20px 320px;  /* Change right margin to left margin */
-            padding: 20px; /* Уменьшаем padding */
-            font-family: Arial, sans-serif;
-            background: #f8f9fa;
-            box-shadow: 0 0 15px rgba(0,0,0,0.15);
-            border-radius: 10px;
-        }
+        body, html {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    box-sizing: border-box;
+    overflow: hidden;
+}
 
-        .container h1 {
+.conteiner {
+    width: 100vw;
+    height: 100vh;
+    background: #f8f9fa;
+    overflow: hidden;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+    /* добавлено: */
+    flex: 1 1 auto;
+}
+
+/* --- Controls panel (top, full width, no scroll) --- */
+.controls-panel {
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    background: #fff;
+    border: 1px solid #81c784;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.10);
+    padding: 12px 16px;
+    width: 100%;
+    max-width: 100vw;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    overflow-x: hidden;
+}
+
+/* --- Main panels row: categories | channels | buffer --- */
+.main-panels-row {
+    display: flex;
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    box-sizing: border-box;
+    overflow: auto;
+    margin: 0;
+    padding: 0;
+    align-items: stretch;
+    height: auto; /* Let flexbox handle height */
+}
+
+/* --- Categories panel (left) --- */
+.categories-panel {
+    flex: 0 0 260px;
+    width: 260px;
+    min-width: 200px;
+    max-width: 320px;
+    background: #fff;
+    border: 1px solid #81c784;
+    border-radius: 10px;
+    padding: 20px 12px 20px 20px;
+    overflow-y: auto;
+    box-shadow: 0 0 15px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    margin: 0;
+    height: 100%;      /* must be 100% to fit .main-panels-row */
+    max-height: 100%;  /* must be 100% to fit .main-panels-row */
+    box-sizing: border-box;
+}
+
+/* --- Channels panel (center) --- */
+.channels-panels-wrapper {
+    flex: 1 1 0;
+    min-width: 320px;
+    max-width: 100vw;
+    min-height: 320px;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    background: #fff;
+    box-shadow: 0 0 15px rgba(0,0,0,0.10);
+    border: 1px solid #81c784;
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    height: 100%;      /* add this: fill parent height */
+    max-height: 100%;  /* add this: fill parent height */
+    box-sizing: border-box;
+}
+
+/* --- Buffer panel (right) --- */
+.buffer-panel {
+    flex: 0 0 260px;
+    width: 260px;
+    min-width: 200px;
+    min-height: 320;
+    max-width: 320px;
+    background: #fff;
+    border: 1px solid #ffcdd2;
+    border-radius: 10px;
+    padding: 20px 20px 20px 12px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    height: 100%;
+    max-height: 100%;
+    box-sizing: border-box;
+}
+
+/* --- Channels list inside container --- */
+.channels-list-panel {
+    flex: 1 1 0;
+    min-height: 320px;
+    overflow: hidden;
+    background: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.channels-list {
+    max-height: 100%;
+    overflow-y: auto;
+    margin-top: 0;
+    box-shadow: none;
+    padding-top: 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+    min-height: 0;
+}
+
+/* --- Responsive: stack panels vertically on small screens --- */
+@media (max-width: 1100px) {
+    .main-panels-row {
+        flex-direction: column;
+    }
+    .categories-panel,
+    .buffer-panel,
+    .channels-panels-wrapper {
+        width: 100vw;
+        min-width: 0;
+        max-width: none;
+        margin: 0 0 12px 0;
+        border-radius: 10px;
+        height: auto;
+        min-height: 240px;
+        overflow-y: auto;
+        max-height: 40vh;
+    }
+    .categories-panel,
+    .buffer-panel,
+    .channels-panels-wrapper {
+        flex: none;
+        min-width: 0;
+        max-width: none;
+    }
+}
+
+        .channels-panels-wrapper h1 {
             font-size: 24px;
             margin-bottom: 5px;
         }
         
         .github-link {
-            display: block;
+            font-size: 16px;
+            margin-left: 6px;
+            white-space: nowrap;
             color: #2196F3;
             text-decoration: none;
-            font-size: 14px;
-            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            height: 100%;
+            padding: 0;
         }
         
         .github-link:hover {
@@ -32,23 +207,6 @@
         }
 
         /* Add styles for categories panel */
-        .categories-panel {
-            position: fixed;
-            left: 20px; /* Change from right to left */
-            top: 50%; /* Change from fixed top to 50% */
-            transform: translateY(-50%); /* Add this to center vertically */
-            width: 260px; /* Уменьшаем ширину панели */
-            max-height: 80vh; /* Change to percentage of viewport height */
-            background: #fff;
-            border: 1px solid #81c784;
-            border-radius: 10px;
-            padding: 20px;
-            overflow-y: auto;
-            box-shadow: 0 0 15px rgba(0,0,0,0.15);
-            display: flex;
-            flex-direction: column;
-        }
-
         .categories-panel h2 {
             margin: 0 0 15px 0;
             color: #343a40;
@@ -64,6 +222,13 @@
             cursor: grab;
             transition: all 0.2s ease;
             user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .category-item button {
+            margin-right: 8px;
         }
 
         .category-item:hover {
@@ -74,15 +239,14 @@
             cursor: grabbing !important;
         }
 
-        .category-item.dragging {
-            opacity: 0.5;
-            background: #c8e6c9;
-            border: 2px dashed #81c784;
+        .category-item.dragging, .category-item.invisible {
+            opacity: 0;
+            visibility: hidden;
         }
 
         .category-item.drag-over {
-            background: #a5d6a7;
-            border-style: dashed;
+            background: #b3e5fc;
+            border-color: #0288d1;
         }
 
         .category-item.active {
@@ -96,6 +260,19 @@
             color: #666;
             font-size: 14px;
             border-top: 1px solid #eee;
+        }
+
+        .drop-placeholder {
+            height: 36px;
+            background: linear-gradient(to right, rgba(129,199,132,0.1), rgba(129,199,132,0.05));
+            border: 2px dashed #81c784;
+            border-radius: 4px;
+            margin: 5px 0;
+            pointer-events: none;
+            position: relative;
+            z-index: 1;
+            animation: pulse 1.5s infinite ease-in-out;
+            cursor: grab !important;
         }
 
         .playlist-item {
@@ -115,9 +292,7 @@
         }
 
         .playlist-item:active {
-            cursor: grabbing;  /* При активном перетаскивании меняем на "хватающую" руку */
-        }
-
+            cursor: grabbing;  /* При активном
         .playlist-item:hover {
             background: #c8e6c9;
             /*
@@ -180,27 +355,40 @@
         .playlist-container.drag-over {
             background: linear-gradient(to bottom, #f1f8e9, #e8f5e9);
             border-color: #81c784;
-            box-shadow: inset 0 0 5px rgba(129, 199, 132, 0.2);
+            box-shadow: inset 0 0 5px
         }
 
         .controls {
-            margin: 20px 0;
-            padding: 15px;
-            background: linear-gradient(to right, #f8f9fa, #ffffff);
+            margin: 8px 0 0 0;
+            padding: 6px 0;
+            background: none;
             border-radius: 6px;
-            border: 1px solid #e9ecef;
+            border: none;
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: center; /* центрируем */
+            gap: 0;
         }
-
+        .controls-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px; /* отступы между кнопками */
+            width: 100%;
+        }
+        .filename-center {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
         .filename {
-            margin-left: 10px;
             color: #666;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 300px;
+            text-align: center;
         }
 
         .group-container {
@@ -277,54 +465,6 @@
             visibility: hidden; /* Дополнительно скрываем для предотвращения взаимодействия */
         }
 
-        button, input[type="file"]::file-selector-button {
-            padding: 8px 16px;
-            background: #2196F3;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        button:hover, input[type="file"]::file-selector-button:hover {
-            background: #1976D2;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        input[type="file"]::file-selector-button {
-            font-family: Arial, sans-serif;
-            content: "";
-        }
-
-        input[type="file"]::before {
-            content: "Open Playlist";
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 100%; /* Make button take full width */
-            padding: 8px 16px;
-            background: #2196F3;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        input[type="file"] {
-            position: relative;
-            height: 35px;
-            width: 120px;
-            overflow: hidden;
-            cursor: pointer;
-            color: transparent; /* Hide the file name text */
-        }
-
-        input[type="file"]::-webkit-file-upload-button {
-            visibility: hidden;
-        }
-
         .tooltip {
             position: fixed;
             background: #333;
@@ -340,23 +480,6 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         /* Styles for the buffer panel */
-        .buffer-panel {
-            position: fixed;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 260px;
-            max-height: 80vh;
-            background: #fff;
-            border: 1px solid #ffcdd2; /* Red lighten-3 */
-            border-radius: 10px;
-            padding: 20px;
-            overflow-y: auto;
-            box-shadow: 0 0 15px rgba(0,0,0,0.15);
-            display: flex;
-            flex-direction: column;
-        }
-
         .buffer-panel h2 {
             margin: 0 0 15px 0;
             color: #343a40;
@@ -372,263 +495,391 @@
             margin-top: 5px;
             position: relative;
             transition: all 0.2s ease;
+            /* max-height: 400px;  <-- remove this line */
+            overflow-y: auto;
+            height: auto;
+        }		
+
+        .header-row {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 10px;
+            margin-bottom: 8px;
         }
 
-        #bufferList.drag-over {
-            background: linear-gradient(to bottom, #ffebee, #ffcdd2); /* Red lighten-5 to lighten-4 */
-            border-color: #ef9a9a; /* Red lighten-3 */
-            box-shadow: inset 0 0 5px rgba(255, 205, 210, 0.2); /* Red lighten-4 with opacity */
-        }		
+        .channels-header h3 {
+            font-size: 18px;
+            margin: 0;
+            padding: 0;
+            font-weight: bold;
+        }
+
+        #dragInfoContainer {
+            height: 22px;
+            margin: 8px 0 0 0;
+            display: flex;
+            align-items: center;
+            visibility: hidden;
+        }
+
+        .delete-category-btn {
+            background: #868f86; 
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            padding: 2px 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+            margin-left: 12px;
+        }
+
+        .delete-category-btn:hover {
+            background: #eee;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>M3U8 Playlist Group Sorter</h1>
-        <a href="https://github.com/CodeNameHawk/SortPlaylist" class="github-link">GitHub link</a>
-        
-        <div class="controls">
-            <input type="file" id="playlistFile" accept=".m3u8">
-            <span class="filename"></span>
-            <button onclick="savePlaylist()">Save Playlist</button>
-            <span id="dragInfo"></span>
+    <div class="conteiner">
+        <div class="controls-panel">
+            <div class="header-row">
+                <h3 style="margin:0;">M3U8 Playlist and Group Sorter v.4.0</h3>
+                <a href="https://github.com/CodeNameHawk/SortPlaylist" class="github-link">Link to GitHub</a>
+            </div>
+            <div class="controls">
+                <div class="controls-center">
+                    <button id="chooseFileBtn" type="button" style="background:#1976d2; color:#fff; border:none; border-radius:4px; padding:10px 18px; font-size:16px; cursor:pointer; margin-right:10px;">Choose file</button>
+                    <input type="file" id="playlistFile" accept=".m3u8" style="display:none;">
+                    <button onclick="openSortDialog()" style="background:#1976d2; color:#fff; border:none; border-radius:4px; padding:10px 18px; font-size:16px; cursor:pointer; margin-right:10px;">Sort PlayList</button>
+                    <button onclick="savePlaylist()" style="background:#1976d2; color:#fff; border:none; border-radius:4px; padding:10px 18px; font-size:16px; cursor:pointer;">Save Playlist</button>
+                </div>
+            </div>
+            <div class="filename-center">
+                <span class="filename"></span>
+            </div>
+            <div id="dragInfoContainer" style="height: 22px; margin:8px 0 0 0; display: flex; align-items: center; visibility: hidden;">
+                <span id="dragInfo" style="display:block;"></span>
+            </div>
+        </div>
+        <div class="main-panels-row">
+            <div class="categories-panel">
+                <h2>Categories</h2>
+                <div id="categoriesList"></div>
+                <div id="categoryDragInfo" class="category-drag-info"></div>
+                <button id="createGroupBtn" style=" width:100%; background:#388e3c; color:#fff; border:none; border-radius:4px; padding:10px 0; font-size:16px; cursor:pointer;">Create new Group</button>
+            </div>
+            <div class="channels-panels-wrapper">
+                <div class="channels-list-panel">
+                    <div class="channels-list">
+                        <div id="groupsContainer"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="buffer-panel">
+                <h2>Buffer</h2>
+                <div id="bufferList" class="playlist-container" data-group="Buffer"></div>
+            </div>
         </div>
 
-        <div id="groupsContainer"></div>
-    </div>
-
-    <div class="categories-panel">
-        <h2>Categories</h2>
-        <div id="categoriesList"></div>
-        <div id="categoryDragInfo" class="category-drag-info"></div>
-        <button onclick="openSortDialog()" style="margin-top: auto;">Sort</button> <!-- Sort button -->
-    </div>
-
-    <!-- Buffer Panel -->
-    <div class="buffer-panel">
-        <h2>Buffer</h2>
-        <div id="bufferList" class="playlist-container" data-group="Buffer"></div>
-    </div>
-
-    <!-- Sorting Modal -->
-    <div id="sortDialog" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;">
-        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 5px;">
-            <h2>Sort Options</h2>
-            <label><input type="radio" name="sortOption" value="name_asc"> By Name A-Z</label><br>
-            <label><input type="radio" name="sortOption" value="name_desc"> By Name Z-A</label><br>
-            <label><input type="radio" name="sortOption" value="custom" checked> Custom Order</label><br>
-
-            <h3>Scope:</h3>
-            <label><input type="radio" name="sortScope" value="all" checked> Apply to All</label><br>
-            <label><input type="radio" name="sortScope" value="group"> Apply to Selected Group</label><br>
-            
-            <h3>Custom Order:</h3>
-            <ul id="suffixList">
-                <li class="suffix-item" draggable="true">HD</li>
-                <li class="suffix-item" draggable="true">FHD</li>
-                <li class="suffix-item" draggable="true">UHD</li>
-                <li class="suffix-item" draggable="true">orig</li>
-                <li class="suffix-item" draggable="true">+0</li>
-                <li class="suffix-item" draggable="true">+1</li>
-                <li class="suffix-item" draggable="true">+2</li>
-                <li class="suffix-item" draggable="true">+3</li>
-                <li class="suffix-item" draggable="true">+4</li>
-                <li class="suffix-item" draggable="true">+5</li>
-                <li class="suffix-item" draggable="true">+6</li>
-                <li class="suffix-item" draggable="true">+7</li>
-                <li class="suffix-item" draggable="true">+8</li>
-                <li class="suffix-item" draggable="true">+9</li>
-                <li class="suffix-item" draggable="true">4K</li>
-                <li class="suffix-item" draggable="true">Other</li>
-            </ul>
-            
-            <button onclick="sortPlaylist()">Sort</button>
-            <button onclick="closeSortDialog()">Cancel</button>
+        <!-- Модальное окно подтверждения удаления категории -->
+        <div id="deleteCategoryModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); z-index:2000; align-items:center; justify-content:center;">
+            <div style="background:#fff; padding:24px 32px; border-radius:8px; min-width:320px; max-width:90vw; box-shadow:0 2px 16px rgba(0,0,0,0.15); text-align:center;">
+                <div id="deleteCategoryModalText" style="margin-bottom:24px; font-size:16px;"></div>
+                <div style="display:flex; gap:12px; justify-content:center;">
+                    <button id="deleteCategoryModalDeleteBtn" style="background:#d32f2f; color:#fff; border:none; border-radius:4px; padding:8px 18px; font-size:15px; cursor:pointer;">Delete</button>
+                    <button id="deleteCategoryModalMoveBtn" style="background:#1976d2; color:#fff; border:none; border-radius:4px; padding:8px 18px; font-size:15px; cursor:pointer;">Move to Buffer</button>
+                    <button id="deleteCategoryModalCancelBtn" style="background:#eee; color:#333; border:none; border-radius:4px; padding:8px 18px; font-size:15px; cursor:pointer;">Cancel</button>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <script>
-        const DEBUG = false; // Флаг для включения/выключения отладки
-        
-        function debug(...args) {
-            if (DEBUG) {
-                console.log(...args);
+        <!-- Sorting Modal -->
+        <div id="sortDialog" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;">
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 5px;">
+                <h2>Sort Options</h2>
+                <label><input type="radio" name="sortOption" value="name_asc"> By Name A-Z</label><br>
+                <label><input type="radio" name="sortOption" value="name_desc"> By Name Z-A</label><br>
+                <label><input type="radio" name="sortOption" value="custom" checked> Custom Order</label><br>
+
+                <h3>Scope:</h3>
+                <label><input type="radio" name="sortScope" value="all" checked> Apply to All</label><br>
+                <label><input type="radio" name="sortScope" value="group"> Apply to Selected Group</label><br>
+                
+                <h3>Custom Order:</h3>
+                <ul id="suffixList">
+                    <li class="suffix-item" draggable="true">HD</li>
+                    <li class="suffix-item" draggable="
+                    <li class="suffix-item" draggable="true">+1</li>
+                    <li class="suffix-item" draggable="true">+2</li>
+                    <li class="suffix-item" draggable="true">+3</li>
+                    <li class="suffix-item" draggable="true">+4</li>
+                    <li class="suffix-item" draggable="true">+5</li>
+                    <li class="suffix-item" draggable="true">+6</li>
+                    <li class="suffix-item" draggable="true">+7</li>
+                    <li class="suffix-item" draggable="true">+8</li>
+                    <li class="suffix-item" draggable="true">+9</li>
+                    <li class="suffix-item" draggable="true">4K</li>
+                    <li class="suffix-item" draggable="true">Other</li>
+                </ul>
+                
+                <button onclick="sortPlaylist()">Sort</button>
+                <button onclick="closeSortDialog()">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Modal for creating a new group -->
+        <div id="createGroupModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); z-index:2000; align-items:center; justify-content:center;">
+            <div style="background:#fff; padding:24px 32px; border-radius:8px; min-width:320px; max-width:90vw; box-shadow:0 2px 16px rgba(0,0,0,0.15); text-align:center;">
+                <div style="margin-bottom:18px; font-size:16px;">Enter new group name:</div>
+                <input id="createGroupInput" type="text" style="width:90%; font-size:16px; padding:6px 8px; margin-bottom:18px; border:1px solid #ccc; border-radius:4px;" />
+                <div style="display:flex; gap:12px; justify-content:center;">
+                    <button id="createGroupModalCreateBtn" style="background:#388e3c; color:#fff; border:none; border-radius:4px; padding:8px 18px; font-size:15px; cursor:pointer;">Create</button>
+                    <button id="createGroupModalCancelBtn" style="background:#eee; color:#333; border:none; border-radius:4px; padding:8px 18px; font-size:15px; cursor:pointer;">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const DEBUG = false; // Флаг для включения/выключения отладки
+            
+            function debug(...args) {
+                if (DEBUG) {
+                    console.log(...args);
+                }
             }
-        }
 
-        let playlistItems = [];
-        let groupOrder = [];
-        let autoScrollInterval = null;
-        const SCROLL_SPEED = 10; // Пикселей за интервал
-        const SCROLL_THRESHOLD = 50; // Расстояние от края для начала прокрутки
-        let lastDragGroups = null;
+            function setDragInfo(text) {
+                const dragInfoContainer = document.getElementById('dragInfoContainer');
+                if (DEBUG) {
+                    dragInfoContainer.style.display = 'flex';
+                    document.getElementById('dragInfo').textContent = text;
+                } else {
+                    dragInfoContainer.style.display = 'none';
+                }
+            }
 
-        document.getElementById('playlistFile').addEventListener('change', handleFileSelect);
+            let playlistItems = [];
+            let groupOrder = [];
+            let autoScrollInterval = null;
+            const SCROLL_SPEED = 10; // Пикселей за интервал
+            const SCROLL_THRESHOLD = 50; // Расстояние от края для начала прокрутки
+            let lastDragGroups = null;
+            let activeGroupName = null;
 
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+            document.getElementById('playlistFile').addEventListener('change', handleFileSelect);
 
-            // Очищаем все данные перед загрузкой
-            playlistItems = [];
-            groupOrder = [];
-            const groupsContainer = document.getElementById('groupsContainer');
-            const categoriesList = document.getElementById('categoriesList');
-            const categoryDragInfo = document.getElementById('categoryDragInfo');
-            const dragInfo = document.getElementById('dragInfo');
-            
-            groupsContainer.innerHTML = '';
-            categoriesList.innerHTML = '';
-            categoryDragInfo.textContent = '';
-            dragInfo.textContent = '';
-            document.querySelector('.filename').textContent = file.name;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const content = e.target.result;
-                parsePlaylist(content);
+            // Add this: trigger file input on button click
+            document.getElementById('chooseFileBtn').onclick = function() {
+                document.getElementById('playlistFile').click();
             };
-            reader.readAsText(file);
-        }
 
-        function parsePlaylist(content) {
-            const lines = content.split('\n');
-            playlistItems = [];
-            groupOrder = []; 
-            
-            let currentItem = null;
-            let currentGroup = '';
+            function handleFileSelect(event) {
+                const file = event.target.files[0];
+                if (!file) return;
 
-            for (let i = 0; i < lines.length; i++) {
-                let line = lines[i].trim();
-                if (!line) continue;
+                // Очищаем все данные перед загрузкой
+                playlistItems = [];
+                groupOrder = [];
+                const groupsContainer = document.getElementById('groupsContainer');
+                const categoriesList = document.getElementById('categoriesList');
+                const categoryDragInfo = document.getElementById('categoryDragInfo');
+                
+                groupsContainer.innerHTML = '';
+                categoriesList.innerHTML = '';
+                categoryDragInfo.textContent = '';
+                setDragInfo('');
+                document.querySelector('.filename').textContent = file.name;
+                adjustChannelsContainerPosition();
 
-                if (line.startsWith('#EXTINF:')) {
-                    currentItem = {
-                        info: line,
-                        url: '',
-                        group: currentGroup
-                    };
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const content = e.target.result;
+                    parsePlaylist(content);
+                    // adjustChannelsContainerPosition();
+                };
+                reader.readAsText(file);
+            }
 
-                    if (i + 1 < lines.length && lines[i + 1].trim().startsWith('#EXTGRP:')) {
-                        currentGroup = lines[i + 1].trim().substring(8).trim();
-                        if (!groupOrder.includes(currentGroup)) {
-                            groupOrder.push(currentGroup);
+            function parsePlaylist(content) {
+                const lines = content.split('\n');
+                playlistItems = [];
+                groupOrder = []; 
+                
+                let currentItem = null;
+                let currentGroup = '';
+
+                for (let i = 0; i < lines.length; i++) {
+                    let line = lines[i].trim();
+                    if (!line) continue;
+
+                    if (line.startsWith('#EXTINF:')) {
+                        currentItem = {
+                            info: line,
+                            url: '',
+                            group: currentGroup
+                        };
+
+                        if (i + 1 < lines.length && lines[i + 1].trim().startsWith('#EXTGRP:')) {
+                            currentGroup = lines[i + 1].trim().substring(8).trim();
+                            if (!groupOrder.includes(currentGroup)) {
+                                groupOrder.push(currentGroup);
+                            }
+                            currentItem.group = currentGroup;
+                            currentItem.info += '\n' + lines[i + 1];
+                            i++;
                         }
-                        currentItem.group = currentGroup;
-                        currentItem.info += '\n' + lines[i + 1];
-                        i++;
+                    } else if (!line.startsWith('#')) {
+                        if (currentItem) {
+                            currentItem.url = line;
+                            if (!currentItem.group) {
+                                currentItem.group = 'Ungrouped';3
+                            }
+                            playlistItems.push({...currentItem});
+                            currentItem = null;
+                        } else {
+                            playlistItems.push({
+                                info: '',
+                                url: line,
+                                group: currentGroup || 'Ungrouped'
+                            });
+                        }
                     }
-                } else if (!line.startsWith('#')) {
-                    if (currentItem) {
-                        currentItem.url = line;
-                        if (!currentItem.group) {
-                            currentItem.group = 'Ungrouped';
-                        }
-                        playlistItems.push({...currentItem});
-                        currentItem = null;
-                    } else {
-                        playlistItems.push({
-                            info: '',
-                            url: line,
-                            group: currentGroup || 'Ungrouped'
-                        });
+                }
+
+                // Ensure 'Buffer' group exists (always add if missing)
+                if (!groupOrder.includes('Buffer')) {
+                    groupOrder.push('Buffer');
+                }
+
+
+                debug('=== Playlist loaded ===');
+                groupOrder.forEach(group => {
+                    const items = playlistItems.filter(item => item.group === group);
+                    debug(`Group ${group}:`, items.map(item => ({
+                        title: item.info.match(/,(.+?)(?:\r?\n|$)/)[1].trim(),
+                        group: item.group
+                    })));
+                });
+
+                renderGroups();
+
+                // Expand the first group after rendering
+                if (groupOrder.length > 0) {
+                    const firstGroup = document.querySelector('.group-container');
+                    if (firstGroup) {
+                        firstGroup.classList.remove('collapsed');
                     }
                 }
             }
 
+            function renderGroups() {
+                // Сначала готовим группы
+                const groups = groupOrder.reduce((acc, groupName) => {
+                    acc[groupName] = playlistItems.filter(item => item.group === groupName);
+                    return acc;
+                }, {});
 
-            // Ensure 'Buffer' group exists
-            if (!groupOrder.includes('Buffer')) {
-                groupOrder.push('Buffer');
-            }
-
-
-            debug('=== Playlist loaded ===');
-            groupOrder.forEach(group => {
-                const items = playlistItems.filter(item => item.group === group);
-                debug(`Group ${group}:`, items.map(item => ({
-                    title: item.info.match(/,(.+?)(?:\r?\n|$)/)[1].trim(),
-                    group: item.group
-                })));
-            });
-
-            renderGroups();
-
-            // Expand the first group after rendering
-            if (groupOrder.length > 0) {
-                const firstGroup = document.querySelector('.group-container');
-                if (firstGroup) {
-                    firstGroup.classList.remove('collapsed');
-                }
-            }
-        }
-
-        function renderGroups() {
-            // Сначала готовим группы
-            const groups = groupOrder.reduce((acc, groupName) => {
-                acc[groupName] = playlistItems.filter(item => item.group === groupName);
-                return acc;
-            }, {});
-
-            // Рендерим категории
-            const categoriesList = document.getElementById('categoriesList');
-            categoriesList.innerHTML = '';
-            
-            groupOrder.forEach(groupName => {
-                const items = groups[groupName];
-                if (!items || !items.length) return;
+                // Рендерим категории
+                const categoriesList = document.getElementById('categoriesList');
+                categoriesList.innerHTML = '';
                 
-                const categoryItem = document.createElement('div');
-                categoryItem.className = 'category-item';
-                categoryItem.textContent = `${groupName} (${items.length})`;
-                categoryItem.dataset.group = groupName;
-                categoryItem.draggable = true;
-                
-                // Добавляем все обработчики... Перемещение канала в группу.
-                categoryItem.addEventListener('dragover', handleCategoryItemDragOver);
-                categoryItem.addEventListener('dragenter', handleCategoryItemDragEnter);
-                categoryItem.addEventListener('dragleave', handleCategoryItemDragLeave);
-                categoryItem.addEventListener('drop', handleCategoryItemDrop);
-                
-                // Существующие обработчики
-                categoryItem.addEventListener('click', handleCategoryClick);
-                categoryItem.addEventListener('dragstart', handleCategoryDragStart);
-                categoryItem.addEventListener('dragend', handleCategoryDragEnd);
-                categoryItem.addEventListener('dragover', handleCategoryDragOver);
-                
-                categoriesList.appendChild(categoryItem);
-            });
+                groupOrder.forEach(groupName => {
+                    // Показываем Buffer в списке категорий
+                    // Показываем категорию даже если нет каналов
+                    const items = groups[groupName] || [];
+                    const categoryItem = document.createElement('div');
+                    categoryItem.className = 'category-item';
+                    categoryItem.dataset.group = groupName;
+                    categoryItem.draggable = true;
+                    categoryItem.style.display = 'flex';
+                    categoryItem.style.alignItems = 'center';
+                    categoryItem.style.justifyContent = 'space-between';
+                    // Текст категории
+                    const textSpan = document.createElement('span');
+                    textSpan.textContent = `${groupName} (${items.length})`;
+                    textSpan.style.flex = '1';
+                    categoryItem.appendChild(textSpan);
+                    // Кнопка удаления категории
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.textContent = '×';
+                    deleteBtn.title = 'Удалить категорию';
+                    deleteBtn.className = 'delete-category-btn';
+                    deleteBtn.style.color = '#000';
+                    deleteBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        handleDeleteCategory(groupName, items.length);
+                    });
+                    categoryItem.appendChild(deleteBtn);
+                    // Добавляем все обработчики... Перемещение канала в группу.
+                    categoryItem.addEventListener('dragover', handleCategoryItemDragOver);
+                    categoryItem.addEventListener('dragenter', handleCategoryItemDragEnter);
+                    categoryItem.addEventListener('dragleave', handleCategoryItemDragLeave);
+                    categoryItem.addEventListener('drop', handleCategoryItemDrop);
+                    categoryItem.addEventListener('click', handleCategoryClick);
+                    categoryItem.addEventListener('dragstart', handleCategoryDragStart);
+                    categoryItem.addEventListener('dragend', handleCategoryDragEnd);
+                    categoriesList.appendChild(categoryItem);
+                });
 
-            // Рендерим каналы
-            const container = document.getElementById('groupsContainer');
-            container.innerHTML = '';
+                // Рендерим каналы
+                const container = document.getElementById('groupsContainer');
+                container.innerHTML = '';
 
-            groupOrder.forEach(groupName => {
-                const items = groups[groupName];
-                if (!items || !items.length) return;
+                groupOrder.forEach(groupName => {
+                    // Показываем все категории, даже если нет каналов (кроме Buffer)
+                    // if (groupName === 'Buffer') return;
+                    const items = groups[groupName] || [];
+                    const groupDiv = document.createElement('div');
+                    groupDiv.className = 'group-container';
+                    const titleDiv = document.createElement('div');
+                    titleDiv.className = 'group-title';
+                    titleDiv.textContent = `${groupName} (${items.length})`;
+                    titleDiv.onclick = () => groupDiv.classList.toggle('collapsed');
+                    groupDiv.appendChild(titleDiv);
+                    const playlistDiv = document.createElement('div');
+                    playlistDiv.className = 'playlist-container';
+                    playlistDiv.dataset.group = groupName;
+                    playlistDiv.addEventListener('dragover', handleDragOver);
+                    playlistDiv.addEventListener('drop', handleDrop);
+                    // Добавляем каналы, если есть
+                    items.forEach((item, index) => {
+                        const element = document.createElement('div');
+                        element.className = 'playlist-item';
+                        element.draggable = true;
+                        element.dataset.url = item.url;
+                        element.dataset.group = groupName;
+                        const titleMatch = item.info.match(/,(.+?)(?:\r?\n|$)/);
+                        const title = titleMatch ? titleMatch[1].trim() : item.url;
+                        element.textContent = title;
+                        element.addEventListener('dragstart', handleDragStart);
+                        element.addEventListener('dragend', handleDragEnd);
+                        element.addEventListener('mousemove', handleItemHover);
+                        element.addEventListener('mouseleave', handleItemLeave);
+                        element.addEventListener('click', handlePlaylistItemClick);
+                        playlistDiv.appendChild(element);
+                    });
+                    groupDiv.appendChild(playlistDiv);
+                    container.appendChild(groupDiv);
+                });
 
-                const groupDiv = document.createElement('div');
-                groupDiv.className = 'group-container';
-                
-                const titleDiv = document.createElement('div');
-                titleDiv.className = 'group-title';
-                titleDiv.textContent = `${groupName} (${items.length})`;
-                titleDiv.onclick = () => groupDiv.classList.toggle('collapsed');
-                groupDiv.appendChild(titleDiv);
 
-                const playlistDiv = document.createElement('div');
-                playlistDiv.className = 'playlist-container';
-                playlistDiv.dataset.group = groupName;
-                
-                playlistDiv.addEventListener('dragover', handleDragOver);
-                playlistDiv.addEventListener('drop', handleDrop);
+                // Render Buffer List
+                const bufferList = document.getElementById('bufferList');
+                bufferList.innerHTML = '';
+                const bufferItems = groups['Buffer'] || [];
 
-                items.forEach((item, index) => {
+                // Add drag and drop event listeners to the bufferList
+                bufferList.addEventListener('dragover', handleDragOver);
+                bufferList.addEventListener('drop', handleDrop);
+
+                bufferItems.forEach(item => {
                     const element = document.createElement('div');
                     element.className = 'playlist-item';
                     element.draggable = true;
-                    element.dataset.url = item.url; // Используем URL как идентификатор
-                    element.dataset.group = groupName;
+                    element.dataset.url = item.url;
+                    element.dataset.group = 'Buffer';
 
                     const titleMatch = item.info.match(/,(.+?)(?:\r?\n|$)/);
                     const title = titleMatch ? titleMatch[1].trim() : item.url;
@@ -640,973 +891,1012 @@
                     element.addEventListener('mouseleave', handleItemLeave);
                     element.addEventListener('click', handlePlaylistItemClick);
 
-                    playlistDiv.appendChild(element);
+                    bufferList.appendChild(element);
                 });
 
-                groupDiv.appendChild(playlistDiv);
-                container.appendChild(groupDiv);
-            });
 
-
-            // Render Buffer List
-            const bufferList = document.getElementById('bufferList');
-            bufferList.innerHTML = '';
-            const bufferItems = groups['Buffer'] || [];
-
-            // Add drag and drop event listeners to the bufferList
-            bufferList.addEventListener('dragover', handleDragOver);
-            bufferList.addEventListener('drop', handleDrop);
-
-            bufferItems.forEach(item => {
-                const element = document.createElement('div');
-                element.className = 'playlist-item';
-                element.draggable = true;
-                element.dataset.url = item.url;
-                element.dataset.group = 'Buffer';
-
-                const titleMatch = item.info.match(/,(.+?)(?:\r?\n|$)/);
-                const title = titleMatch ? titleMatch[1].trim() : item.url;
-                element.textContent = title;
-
-                element.addEventListener('dragstart', handleDragStart);
-                element.addEventListener('dragend', handleDragEnd);
-                element.addEventListener('mousemove', handleItemHover);
-                element.addEventListener('mouseleave', handleItemLeave);
-                element.addEventListener('click', handlePlaylistItemClick);
-
-                bufferList.appendChild(element);
-            });
-
-
-            // Set the first category as active after rendering
-            if (groupOrder.length > 0) {
-                setActiveCategory(groupOrder[0]);
-            }
-        }
-
-        // Добавляем новую функцию для обработки клика по категории
-        function handleCategoryClick(e) {
-            const selectedGroup = e.target.dataset.group;
-            setActiveCategory(selectedGroup);
-            
-            // Находим все группы
-            const allGroups = document.querySelectorAll('.group-container');
-            let targetGroup = null;
-            
-            // Сворачиваем все группы кроме выбранной и находим целевую группу
-            allGroups.forEach(group => {
-                const groupTitle = group.querySelector('.group-title');
-                const groupName = groupTitle.textContent.split(' (')[0];
-                
-                if (groupName === selectedGroup) {
-                    group.classList.remove('collapsed');
-                    targetGroup = group;
-                } else {
-                    group.classList.add('collapsed');
-                }
-            });
-
-            // Прокручиваем к выбранной группе если она найдена
-            if (targetGroup) {
-                targetGroup.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-                // Добавляем небольшой отступ сверху
-                const headerOffset = 20;
-                const elementPosition = targetGroup.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                
-                window.scrollTo({
-                    top: offsetPosition,
-                    behavior: 'smooth'
-                });
-            }
-        }
-
-        function handlePlaylistItemClick(e) {
-            const selectedGroup = e.target.dataset.group;
-            setActiveCategory(selectedGroup);
-
-            // Find and expand the group
-            const allGroups = document.querySelectorAll('.group-container');
-            allGroups.forEach(group => {
-                const groupTitle = group.querySelector('.group-title');
-                const groupName = groupTitle.textContent.split(' (')[0];
-
-                if (groupName === selectedGroup) {
-                    group.classList.remove('collapsed');
-                } else {
-                    group.classList.add('collapsed');
-                }
-            });
-        }
-
-        function setActiveCategory(groupName) {
-            const categories = document.querySelectorAll('.category-item');
-            categories.forEach(category => {
-                if (category.dataset.group === groupName) {
-                    category.classList.add('active');
-                } else {
-                    category.classList.remove('active');
-                }
-            });
-        }
-
-        function handleDragStart(e) {
-            e.dataTransfer.effectAllowed = 'move';
-            e.target.classList.add('dragging');
-            e.dataTransfer.setData('text/plain', JSON.stringify({
-                type: 'item', // Добавляем тип для различения каналов и категорий
-                url: e.target.dataset.url,
-                group: e.target.dataset.group
-            }));
-
-            document.querySelectorAll('.playlist-container').forEach(container => {
-                container.addEventListener('dragenter', handleDragEnter);
-                container.addEventListener('dragleave', handleDragLeave);
-            });
-
-            const groupItems = playlistItems.filter(item => item.group === e.target.dataset.group);
-            const dragInfo = `Элемент ${groupItems.findIndex(item => item.url === e.target.dataset.url) + 1} из ${groupItems.length}`;
-            document.getElementById('dragInfo').textContent = dragInfo;
-            
-            debug('=== Начальное состояние ===');
-            debug('Группа:', e.target.dataset.group);
-            debug('Элементы группы:', JSON.stringify(groupItems, null, 2));
-
-            // Store the source group
-            lastDragGroups = {
-                from: e.target.dataset.group
-            };
-        }
-
-        function handleDragEnter(e) {
-            e.preventDefault();
-            e.currentTarget.classList.add('drag-over');
-        }
-
-        function handleDragLeave(e) {
-            e.preventDefault();
-            if (e.relatedTarget && !e.currentTarget.contains(e.relatedTarget)) {
-                e.currentTarget.classList.remove('drag-over');
-            }
-        }
-
-        function handleDragOver(e) {
-            e.preventDefault();
-            startAutoScroll(e);
-            
-            const container = e.target.closest('.playlist-container');
-            if (!container) return;
-
-            const dragElement = document.querySelector('.dragging');
-            if (!dragElement) return;
-
-            const items = Array.from(container.children)
-                .filter(el => el.classList.contains('playlist-item'));
-            
-            const mouseY = e.clientY;
-            let insertBefore = null;
-            
-            // Находим элемент, перед которым нужно вставить
-            for (const item of items) {
-                const rect = item.getBoundingClientRect();
-                if (mouseY < rect.top + rect.height / 2) {
-                    insertBefore = item;
-                    break;
-                }
-            }
-
-            // Определяем позицию для отображения
-            const insertIndex = insertBefore ? items.indexOf(insertBefore) : items.length;
-            
-            if (container.dataset.group === dragElement.dataset.group) {
-                // Если перемещаем в той же группе
-                const currentIndex = items.findIndex(item => 
-                    item.dataset.url === dragElement.dataset.url
-                );
-                if (currentIndex !== -1) {
-                    // Корректируем индекс с учетом удаления текущего элемента
-                    const displayPosition = insertIndex > currentIndex ? insertIndex : insertIndex + 1;
-                    document.getElementById('dragInfo').textContent = 
-                        `Перемещение на позицию ${displayPosition} из ${items.length}`;
-                }
-            } else {
-                // Если перемещаем в другую группу
-                document.getElementById('dragInfo').textContent = 
-                    `Вставка в позицию ${insertIndex + 1} из ${items.length + 1}`;
-            }
-
-            // Обрабатываем плейсхолдер
-            const oldPlaceholder = document.querySelector('.drop-placeholder');
-            if (oldPlaceholder) oldPlaceholder.remove();
-            
-            const placeholder = document.createElement('div');
-            placeholder.className = 'drop-placeholder';
-            
-            if (insertBefore) {
-                container.insertBefore(placeholder, insertBefore);
-            } else {
-                container.appendChild(placeholder);
-            }
-        }
-
-        function handleDragEnd(e) {
-            stopAutoScroll();
-            e.target.classList.remove('dragging');
-            
-            const placeholder = document.querySelector('.drop-placeholder');
-            if (placeholder) placeholder.remove();
-
-            document.querySelectorAll('.playlist-container').forEach(container => {
-                container.removeEventListener('dragenter', handleDragEnter);
-                container.removeEventListener('dragleave', handleDragLeave);
-                container.classList.remove('drag-over');
-            });
-
-            document.getElementById('dragInfo').textContent = '';
-        }
-
-        function createPlaceholder() {
-            const oldPlaceholder = document.querySelector('.drop-placeholder');
-            if (oldPlaceholder) oldPlaceholder.remove();
-            
-            const placeholder = document.createElement('div');
-            placeholder.className = 'drop-placeholder';
-            return placeholder;
-        }
-
-        function getDragAfterElement(container, y) {
-            const draggableElements = [...container.querySelectorAll('.playlist-item:not(.dragging)')];
-            
-            return draggableElements.reduce((closest, child) => {
-                const box = child.getBoundingClientRect();
-                const offset = y - box.top - box.height / 2;
-                
-                if (offset < 0 && offset > closest.offset) {
-                    return { offset: offset, element: child };
-                } else {
-                    return closest;
-                }
-            }, { offset: Number.NEGATIVE_INFINITY }).element;
-        }
-
-        let tooltip = null;
-
-        function handleItemHover(e) {
-            if (!DEBUG) return;
-            
-            const item = e.target;
-            const url = item.dataset.url;
-            
-            const playlistItem = playlistItems.find(pi => pi.url === url);
-            if (!playlistItem) return;
-
-            if (!tooltip) {
-                tooltip = document.createElement('div');
-                tooltip.className = 'tooltip';
-                document.body.appendChild(tooltip);
-            }
-
-            tooltip.innerHTML = `
-                Group: ${playlistItem.group}<br>
-                Info: ${playlistItem.info}<br>
-                URL: ${playlistItem.url}
-            `;
-
-            tooltip.style.left = e.clientX + 'px';
-            tooltip.style.top = e.clientY + 'px';
-        }
-
-        function handleItemLeave() {
-            if (tooltip) {
-                tooltip.remove();
-                tooltip = null;
-            }
-        }
-
-        function updateItemGroup(url, newGroup) {
-            const item = playlistItems.find(item => item.url === url);
-            if (!item) return;
-
-            item.group = newGroup;
-            if (!item.info) {
-                item.info = `#EXTINF:-1,Unknown\n#EXTGRP:${newGroup}`;
-            } else if (item.info.includes('#EXTGRP:')) {
-                item.info = item.info.replace(/#EXTGRP:.*(\r?\n|$)/, `#EXTGRP:${newGroup}\n`);
-            } else {
-                item.info = item.info.trim() + `\n#EXTGRP:${newGroup}`;
-            }
-        }
-
-        function handleDrop(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            stopAutoScroll();
-            
-            const container = e.target.closest('.playlist-container');
-            if (!container) return;
-
-            // Store current collapse states
-            const collapsedGroups = new Set();
-            document.querySelectorAll('.group-container').forEach(group => {
-                if (group.classList.contains('collapsed')) {
-                    const groupName = group.querySelector('.group-title').textContent.split(' (')[0];
-                    collapsedGroups.add(groupName);
-                }
-            });
-            
-            // Store the target group
-            lastDragGroups = {
-                ...lastDragGroups,
-                to: container.dataset.group
-            };
-            
-            // Store scroll position BEFORE any DOM changes
-            const scrollPosition = window.pageYOffset;
-
-            // Store the active group BEFORE the DOM manipulation
-            const activeCategory = document.querySelector('.category-item.active');
-            const activeGroupName = activeCategory ? activeCategory.dataset.group : null;
-            
-            const dragData = JSON.parse(e.dataTransfer.getData('text/plain'));
-            const fromGroup = dragData.group;
-            const toGroup = container.dataset.group;
-            const url = dragData.url;
-            
-            const placeholder = document.querySelector('.drop-placeholder');
-            if (!placeholder) return;
-
-            // Находим индекс перемещаемого элемента
-            const itemIndex = playlistItems.findIndex(item => item.url === url);
-            if (itemIndex === -1) return;
-
-            // Определяем позицию для вставки относительно видимых элементов
-            const visibleItems = Array.from(container.children)
-                .filter(el => el.classList.contains('playlist-item'));
-            
-            const insertBefore = visibleItems.find(item =>
-                placeholder.compareDocumentPosition(item) & Node.DOCUMENT_POSITION_FOLLOWING);
-            
-            const insertIndex = insertBefore ? visibleItems.indexOf(insertBefore) : visibleItems.length;
-
-            // Создаем новый объект с обновленной группой
-            const movedItem = {
-                ...playlistItems[itemIndex],
-                group: toGroup
-            };
-
-            // Обновляем информацию о группе
-            movedItem.info = movedItem.info.includes('#EXTGRP:') 
-                ? movedItem.info.replace(/#EXTGRP:.*(\r?\n|$)/, `#EXTGRP:${toGroup}\r\n`)
-                : movedItem.info.trim() + `\n#EXTGRP:${toGroup}\r\n`;
-
-            // Находим индекс начала целевой группы 
-            const groupStartIndex = playlistItems.findIndex(item => item.group === toGroup);
-            const finalInsertIndex = groupStartIndex + insertIndex;
-
-            debug('=== Drop details ===');
-            debug('From group:', fromGroup);
-            debug('To group:', toGroup); 
-            debug('Insert index:', insertIndex);
-            debug('Group start:', groupStartIndex);
-            debug('Final index:', finalInsertIndex);
-
-            // Удаляем элемент из старого места
-            playlistItems.splice(itemIndex, 1);
-            
-            // Корректируем индекс вставки если удаляем элемент перед местом вставки
-            const adjustedIndex = itemIndex < finalInsertIndex ? finalInsertIndex - 1 : finalInsertIndex;
-            
-            // Вставляем элемент в новую позицию
-            playlistItems.splice(adjustedIndex, 0, movedItem);
-            
-            renderGroups();
-
-            // Restore the active group and scroll to it, but only if there was an active group before
-            if (activeGroupName) {
-                setActiveCategory(activeGroupName);
-                scrollToGroup(activeGroupName);
-            }
-
-            // Restore collapse states
-            document.querySelectorAll('.group-container').forEach(group => {
-                const groupName = group.querySelector('.group-title').textContent.split(' (')[0];
-                if (collapsedGroups.has(groupName)) {
-                    group.classList.add('collapsed');
-                } else if (lastDragGroups && (groupName === lastDragGroups.from || groupName === lastDragGroups.to)) {
-                    group.classList.remove('collapsed');
-                }
-            });
-            
-            // Restore scroll position AFTER render
-            window.scrollTo(0, scrollPosition);
-            
-            return false;
-        }
-
-        async function savePlaylist() {
-            let content = '#EXTM3U\r\n';  // Используем \r\n для совместимости
-            
-            debug('=== Before saving ===');
-            debug('Group order:', groupOrder);
-            debug('Playlist items:', 
-                playlistItems.map(item => ({
-                    title: item.info.match(/,(.+?)(?:\r?\n|$)/)[1].trim(),
-                    group: item.group
-                }))
-            );
-
-            // Обрабатываем группы в том порядке, в котором они находятся в groupOrder
-            for (const groupName of groupOrder) {
-                // Получаем все элементы группы в порядке их следования в массиве
-                const groupItems = playlistItems.filter(item => item.group === groupName);
-                
-                // Сохраняем каждый элемент группы
-                groupItems.forEach(item => {
-                    if (item.info) {
-                        // Разделяем строки инфо, чтобы правильно обработать EXTGRP
-                        const infoLines = item.info.split(/\r?\n/);
-                        const extinf = infoLines[0];
-                        content += extinf + '\r\n';
-                        
-                        // Добавляем или обновляем EXTGRP
-                        if (infoLines.length > 1 && infoLines[1].startsWith('#EXTGRP:')) {
-                            content += `#EXTGRP:${item.group}\r\n`;
-                        } else {
-                            content += `#EXTGRP:${item.group}\r\n`;
-                        }
+                // Set the first category as active after rendering
+                if (groupOrder.length > 0) {
+                    if (!activeGroupName || !groupOrder.includes(activeGroupName)) {
+                        activeGroupName = groupOrder[0];
                     }
-                    
-                    if (item.url) {
-                        content += item.url + '\r\n';
-                    }
-                });
-            }
-
-            debug('=== Generated content ===');
-            debug(content);
-
-            // ...rest of save function...
-            if (window.showSaveFilePicker) {
-                try {
-                    const handle = await window.showSaveFilePicker({
-                        suggestedName: 'playlist_sorted.m3u8',
-                        types: [{
-                            description: 'M3U8 Playlist',
-                            accept: {'text/plain': ['.m3u8']}
-                        }],
-                    });
-                    
-                    const writable = await handle.createWritable();
-                    await writable.write(content);
-                    await writable.close();
-
-                    // Выводим в консоль для проверки
-                    debug('=== Saved content ===');
-                    debug(content);
-                } catch (err) {
-                    console.error('Failed to save using modern API:', err);
-                    fallbackSave(content);
+                    setActiveCategory(activeGroupName);
                 }
-            } else {
-                fallbackSave(content);
-            }
 
-            debug('=== Generated content ===');
-            debug(content);
-        }
-
-        function fallbackSave(content) {
-            const blob = new Blob([content], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'playlist_sorted.m3u8';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        function handleCategoryDragStart(e) {
-            const item = e.target;
-            if (!item.classList.contains('category-item')) return;
-            
-            e.dataTransfer.effectAllowed = 'move';
-            item.classList.add('dragging');
-            e.dataTransfer.setData('text/plain', JSON.stringify({
-                type: 'category',
-                group: item.dataset.group
-            }));
-
-            setTimeout(() => {
-                e.target.style.display = 'none'; // Temporarily hide the dragged element
-            }, 0);
-
-            const currentIndex = groupOrder.indexOf(item.dataset.group);
-            const totalCount = groupOrder.length;
-            // document.getElementById('categoryDragInfo').textContent = 
-            //     `Захват категории ${currentIndex + 1} из ${totalCount - 1}`;
-        }
-
-        function handleCategoryDragOver(e) {
-            e.preventDefault();
-            startAutoScroll(e);
-
-            const container = document.getElementById('categoriesList');
-            const draggingElement = document.querySelector('.category-item.dragging');
-            if (!draggingElement) return;
-
-            const items = Array.from(container.children).filter(el => 
-                el.classList.contains('category-item') && !el.classList.contains('dragging')
-            );
-            
-            const mouseY = e.clientY;
-            let targetItem = null;
-
-            // Находим позицию для вставки с учетом смещения
-            const currentIndex = groupOrder.indexOf(draggingElement.dataset.group);
-            let targetIndex = items.length;
-
-            for (let i = 0; i < items.length; i++) {
-                const item = items[i];
-                const rect = item.getBoundingClientRect();
-                
-                // Используем 1/2 высоты элемента как точку перехода
-                if (mouseY < rect.top + (rect.height * 0.5)) {
-                    targetIndex = i;
-                    targetItem = item;
-                    break;
+                // Collapse all groups except the active one after rendering
+                if (groupOrder.length > 0) {
+                    collapseAllGroupsExcept(activeGroupName);
                 }
             }
 
-            // Отображаемый индекс должен совпадать с реальной позицией вставки
-            const displayIndex = targetIndex + 1;
-
-            // document.getElementById('categoryDragInfo').textContent = 
-            //     `Перемещение категории ${currentIndex + 1} → ${displayIndex} из ${groupOrder.length - 1}`;
-
-            // Обновляем placeholder только если позиция изменилась
-            const oldPlaceholder = container.querySelector('.drop-placeholder');
-            if (oldPlaceholder) {
-                const nextAfterPlaceholder = oldPlaceholder.nextElementSibling;
-                if (nextAfterPlaceholder === targetItem) return;
-                oldPlaceholder.remove();
-            }
-
-            const placeholder = document.createElement('div');
-            placeholder.className = 'drop-placeholder';
-
-            if (targetItem) {
-                container.insertBefore(placeholder, targetItem);
-            } else {
-                container.appendChild(placeholder);
-            }
-        }
-
-        function handleCategoryDragEnd(e) {
-            const draggingElement = e.target;
-            draggingElement.classList.remove('dragging');
-            
-            const placeholder = document.querySelector('.drop-placeholder');
-            if (placeholder) {
-                const container = document.getElementById('categoriesList');
-                const items = Array.from(container.children).filter(el => 
-                    el.classList.contains('category-item') || el === placeholder
-                );
-                
-                const group = draggingElement.dataset.group;
-                const currentIndex = groupOrder.indexOf(group);
-                const placeholderIndex = items.indexOf(placeholder);
-                
-                // Корректируем индекс вставки с учетом текущей позиции
-                const finalIndex = currentIndex < placeholderIndex ? placeholderIndex - 1 : placeholderIndex;
-                
-                // Обновляем порядок групп
-                groupOrder = groupOrder.filter(g => g !== group);
-                groupOrder.splice(finalIndex, 0, group);
-                
-                placeholder.remove();
+            function handleDeleteCategory(groupName, channelCount) {
+                if (channelCount > 0) {
+                    showDeleteCategoryModal(groupName, channelCount);
+                    return;
+                }
+                // Remove category from groupOrder
+                groupOrder = groupOrder.filter(g => g !== groupName);
                 renderGroups();
             }
-            
-            document.getElementById('categoryDragInfo').textContent = '';
-        }
 
-        // Добавляем новые функции для обработки drop на категории
-        function handleCategoryItemDragOver(e) {
-            // Проверяем, что перетаскивается канал, а не категория
-            const dragData = JSON.parse(e.dataTransfer.getData('text/plain') || '{}');
-            if (!dragData.type || dragData.type === 'category') return;
-            
-            e.preventDefault();
-            e.stopPropagation();
-        }
+            function showDeleteCategoryModal(groupName, channelCount) {
+                const modal = document.getElementById('deleteCategoryModal');
+                const text = document.getElementById('deleteCategoryModalText');
+                text.textContent = `Category "${groupName}" contains ${channelCount} channels. What do you want to do?`;
+                modal.style.display = 'flex';
 
-        function handleCategoryItemDragEnter(e) {
-            const dragData = JSON.parse(e.dataTransfer.getData('text/plain') || '{}');
-            if (!dragData.type || dragData.type === 'category') return;
-            
-            e.currentTarget.classList.add('drag-over');
-        }
-
-        function handleCategoryItemDragLeave(e) {
-            e.currentTarget.classList.remove('drag-over');
-        }
-
-        function handleCategoryItemDrop(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const dragData = JSON.parse(e.dataTransfer.getData('text/plain') || '{}');
-            if (!dragData.type || dragData.type === 'category') return;
-            
-            const fromGroup = dragData.group;
-            const toGroup = e.currentTarget.dataset.group;
-            const url = dragData.url;
-            
-            if (fromGroup === toGroup) return;
-            
-            // Находим индекс перемещаемого элемента
-            const itemIndex = playlistItems.findIndex(item => item.url === url);
-            if (itemIndex === -1) return;
-            
-            // Создаем копию элемента и обновляем его группу
-            const movedItem = {
-                ...playlistItems[itemIndex],
-                group: toGroup,
-                info: playlistItems[itemIndex].info.includes('#EXTGRP:') 
-                    ? playlistItems[itemIndex].info.replace(/#EXTGRP:.*(\r?\n|$)/, `#EXTGRP:${toGroup}\n`)
-                    : playlistItems[itemIndex].info.trim() + `\n#EXTGRP:${toGroup}`
-            };
-
-            // Удаляем элемент из массива
-            playlistItems.splice(itemIndex, 1);
-
-            // Находим последний элемент целевой группы
-            const lastGroupIndex = playlistItems.reduce((last, item, idx) => 
-                item.group === toGroup ? idx + 1 : last, 0);
-
-            // Вставляем элемент после последнего элемента группы
-            playlistItems.splice(lastGroupIndex, 0, movedItem);
-
-            debug('=== After category drop ===');
-            groupOrder.forEach(group => {
-                const items = playlistItems.filter(item => item.group === group);
-                debug(`Group ${group}:`, items.map(item => ({
-                    title: item.info.match(/,(.+?)(?:\r?\n|$)/)[1].trim(),
-                    group: item.group
-                })));
-            });
-
-            renderGroups();
-            return false;
-        }
-
-        function startAutoScroll(e) {
-            if (autoScrollInterval) return;
-
-            const container = document.querySelector('.container');
-            const containerRect = container.getBoundingClientRect();
-            
-            if (e.clientY - containerRect.top < SCROLL_THRESHOLD) {
-                // Scroll up
-                autoScrollInterval = setInterval(() => {
-                    container.scrollTop -= SCROLL_SPEED;
-                }, 16);
-            } else if (containerRect.bottom - e.clientY < SCROLL_THRESHOLD) {
-                // Scroll down
-                autoScrollInterval = setInterval(() => {
-                    container.scrollTop += SCROLL_SPEED;
-                }, 16);
-            }
-        }
-
-        function stopAutoScroll() {
-            if (autoScrollInterval) {
-                clearInterval(autoScrollInterval);
-                autoScrollInterval = null;
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const suffixList = document.getElementById('suffixList');
-
-            suffixList.addEventListener('dragstart', (e) => {
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/plain', e.target.textContent);
-                e.target.classList.add('dragging');
-            });
-
-            suffixList.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                const draggingElement = document.querySelector('.suffix-item.dragging');
-                const targetElement = e.target.closest('.suffix-item');
-
-                if (!draggingElement || !targetElement || targetElement === draggingElement) {
-                    return;
-                }
-
-                const list = Array.from(suffixList.children);
-                const dragIndex = list.indexOf(draggingElement);
-                const targetIndex = list.indexOf(targetElement);
-
-                if (dragIndex < targetIndex) {
-                    suffixList.insertBefore(draggingElement, targetElement.nextSibling);
-                } else {
-                    suffixList.insertBefore(draggingElement, targetElement);
-                }
-            });
-
-            suffixList.addEventListener('dragend', (e) => {
-                e.target.classList.remove('dragging');
-            });
-        });
-
-        function openSortDialog() {
-            document.getElementById('sortDialog').style.display = 'block';
-        }
-
-        function closeSortDialog() {
-            document.getElementById('sortDialog').style.display = 'none';
-        }
-
-        function sortPlaylist() {
-            const sortOption = document.querySelector('input[name="sortOption"]:checked').value;
-            const sortScope = document.querySelector('input[name="sortScope"]:checked').value;
-
-            // Store the active group name before sorting
-            let activeGroupName = null;
-            const activeCategory = document.querySelector('.category-item.active');
-            if (activeCategory) {
-                activeGroupName = activeCategory.dataset.group;
+                // Очистить предыдущие обработчики
+                const deleteBtn = document.getElementById('deleteCategoryModalDeleteBtn');
+                const moveBtn = document.getElementById('deleteCategoryModalMoveBtn');
+                const cancelBtn = document.getElementById('deleteCategoryModalCancelBtn');
+                deleteBtn.onclick = function() {
+                    playlistItems = playlistItems.filter(item => item.group !== groupName);
+                    groupOrder = groupOrder.filter(g => g !== groupName);
+                    modal.style.display = 'none';
+                    renderGroups();
+                };
+                moveBtn.onclick = function() {
+                    playlistItems.forEach(item => {
+                        if (item.group === groupName) {
+                            item.group = 'Buffer';
+                            if (item.info.includes('#EXTGRP:')) {
+                                item.info = item.info.replace(/#EXTGRP:.*/g, '#EXTGRP:Buffer');
+                            } else {
+                                item.info = item.info.trim() + '\n#EXTGRP:Buffer';
+                            }
+                        }
+                    });
+                    groupOrder = groupOrder.filter(g => g !== groupName);
+                    modal.style.display = 'none';
+                    renderGroups();
+                };
+                cancelBtn.onclick = function() {
+                    modal.style.display = 'none';
+                };
             }
 
-            debug('Active group before sorting:', activeGroupName);
-
-            // Store the collapsed state of each group before sorting
-            const collapsedGroups = new Set();
-            document.querySelectorAll('.group-container').forEach(group => {
-                if (group.classList.contains('collapsed')) {
+            function collapseAllGroupsExcept(activeGroupName) {
+                const allGroups = document.querySelectorAll('.group-container');
+                allGroups.forEach(group => {
                     const groupTitle = group.querySelector('.group-title');
                     const groupName = groupTitle.textContent.split(' (')[0];
-                    collapsedGroups.add(groupName);
-                }
-            });
-
-            let groupNameToSort = null;
-
-            if (sortScope === 'all') {
-                groupOrder.forEach(groupName => sortGroup(groupName, sortOption));
-            } else if (sortScope === 'group') {
-                // Find the first expanded group
-                const expandedGroup = document.querySelector('.group-container:not(.collapsed) .group-title');
-                if (expandedGroup) {
-                    groupNameToSort = expandedGroup.textContent.split(' (')[0];
-                } else {
-                    alert('Please expand a group first to sort.');
-                    closeSortDialog();
-                    return;
-                }
-                if (groupNameToSort) {
-                    sortGroup(groupNameToSort, sortOption);
-                }
-            }
-
-            renderGroups();
-
-            debug('Active group after rendering:', activeGroupName);
-
-            // Restore the active group and simulate click on it
-            if (activeGroupName) {
-                setActiveCategory(activeGroupName);
-                // Находим кнопку активной категории и симулируем клик
-                const activeButton = document.querySelector(`.category-item[data-group="${activeGroupName}"]`);
-                if (activeButton) {
-                    activeButton.click();
-                }
-            }
-
-            // Restore collapse states
-            document.querySelectorAll('.group-container').forEach(group => {
-                const groupName = group.querySelector('.group-title').textContent.split(' (')[0];
-                if (collapsedGroups.has(groupName)) {
-                    group.classList.add('collapsed');
-                }
-            });
-
-            closeSortDialog();
-        }
-
-        function sortGroup(groupName, sortOption) {
-            const groupItems = playlistItems.filter(item => item.group === groupName);
-
-            if (sortOption === 'name_asc') {
-                groupItems.sort((a, b) => {
-                    const titleA = a.info.match(/,(.+?)(?:\r?\n|$)/)?.[1]?.trim() || '';
-                    const titleB = b.info.match(/,(.+?)(?:\r?\n|$)/)?.[1]?.trim() || '';
-                    return titleA.localeCompare(titleB);
-                });
-            } else if (sortOption === 'name_desc') {
-                groupItems.sort((a, b) => {
-                    const titleA = a.info.match(/,(.+?)(?:\r?\n|$)/)?.[1]?.trim() || '';
-                    const titleB = b.info.match(/,(.+?)(?:\r?\n|$)/)?.[1]?.trim() || '';
-                    return titleB.localeCompare(titleA);
-                });
-            } else if (sortOption === 'custom') {
-                const suffixOrder = Array.from(document.querySelectorAll('#suffixList .suffix-item'))
-                    .map(item => item.textContent.trim());
-
-                groupItems.sort((a, b) => {
-                    const titleA = a.info.match(/,(.+?)(?:\r?\n|$)/)?.[1]?.trim() || '';
-                    const titleB = b.info.match(/,(.+?)(?:\r?\n|$)/)?.[1]?.trim() || '';
-
-                    const suffixA = suffixOrder.find(suffix => titleA.includes(suffix)) || 'Other';
-                    const suffixB = suffixOrder.find(suffix => titleB.includes(suffix)) || 'Other';
-
-                    const indexA = suffixOrder.indexOf(suffixA);
-                    const indexB = suffixOrder.indexOf(suffixB);
-
-                    if (indexA !== -1 && indexB !== -1) {
-                        return indexA - indexB;
-                    } else if (indexA !== -1) {
-                        return -1;
-                    } else if (indexB !== -1) {
-                        return 1;
+                    if (groupName !== activeGroupName) {
+                        group.classList.add('collapsed');
                     } else {
-                        return titleA.localeCompare(titleB);
+                        group.classList.remove('collapsed');
                     }
                 });
             }
 
-            // Apply the sorted groupItems back to playlistItems
-            let currentIndex = 0;
-            for (let i = 0; i < playlistItems.length; i++) {
-                if (playlistItems[i].group === groupName) {
-                    if (currentIndex < groupItems.length) {
-                        playlistItems[i] = groupItems[currentIndex];
-                        currentIndex++;
-                    }
-                }
+            function handleCategoryClick(e) {
+                // Не реагировать на клик по кнопке удаления
+                if (e.target.classList.contains('delete-category-btn')) return;
+                const selectedGroup = e.currentTarget.dataset.group;
+                setActiveCategory(selectedGroup);
+                collapseAllGroupsExcept(selectedGroup);
+                scrollToGroup(selectedGroup);
             }
-            debug(`Group ${groupName} sorted with ${sortOption}`);
-        }
 
-        function setActiveCategory(groupName) {
-            const categories = document.querySelectorAll('.category-item');
-            categories.forEach(category => {
-                if (category.dataset.group === groupName) {
-                    category.classList.add('active');
-                } else {
-                    category.classList.remove('active');
-                }
-            });
-        }
+            function handlePlaylistItemClick(e) {
+                const selectedGroup = e.target.dataset.group;
+                setActiveCategory(selectedGroup);
 
-        async function savePlaylist() {
-            let content = '#EXTM3U\r\n';  // Используем \r\n для совместимости
-            
-            debug('=== Before saving ===');
-            debug('Group order:', groupOrder);
-            debug('Playlist items:', 
-                playlistItems.map(item => ({
-                    title: item.info.match(/,(.+?)(?:\r?\n|$)/)[1].trim(),
-                    group: item.group
-                }))
-            );
+                // Collapse all groups except the selected one
+                collapseAllGroupsExcept(selectedGroup);
+            }
 
-            // Обрабатываем группы в том порядке, в котором они находятся в groupOrder
-            for (const groupName of groupOrder) {
-                // Получаем все элементы группы в порядке их следования в массиве
-                const groupItems = playlistItems.filter(item => item.group === groupName);
+            function setActiveCategory(groupName) {
+                activeGroupName = groupName;
+                const categories = document.querySelectorAll('.category-item');
+                categories.forEach(category => {
+                    if (category.dataset.group === groupName) {
+                        category.classList.add('active');
+                    } else {
+                        category.classList.remove('active');
+                    }
+                });
+            }
+
+            function handleDragStart(e) {
+                e.dataTransfer.effectAllowed = 'move';
+                e.target.classList.add('dragging');
+                e.dataTransfer.setData('text/plain', JSON.stringify({
+                    type: 'item', // Добавляем тип для различения каналов и категорий
+                    url: e.target.dataset.url,
+                    group: e.target.dataset.group
+                }));
+
+                document.querySelectorAll('.playlist-container').forEach(container => {
+                    container.addEventListener('dragenter', handleDragEnter);
+                    container.addEventListener('dragleave', handleDragLeave);
+                });
+
+                const groupItems = playlistItems.filter(item => item.group === e.target.dataset.group);
+                const dragInfo = `Элемент ${groupItems.findIndex(item => item.url === e.target.dataset.url) + 1} из ${groupItems.length}`;
+                setDragInfo(dragInfo);
                 
-                // Сохраняем каждый элемент группы
-                groupItems.forEach(item => {
-                    if (item.info) {
-                        // Разделяем строки инфо, чтобы правильно обработать EXTGRP
-                        const infoLines = item.info.split(/\r?\n/);
-                        const extinf = infoLines[0];
-                        content += extinf + '\r\n';
-                        
-                        // Добавляем или обновляем EXTGRP
-                        if (infoLines.length > 1 && infoLines[1].startsWith('#EXTGRP:')) {
-                            content += `#EXTGRP:${item.group}\r\n`;
-                        } else {
-                            content += `#EXTGRP:${item.group}\r\n`;
-                        }
-                    }
-                    
-                    if (item.url) {
-                        content += item.url + '\r\n';
-                    }
-                });
+                debug('=== Начальное состояние ===');
+                debug('Группа:', e.target.dataset.group);
+                debug('Элементы группы:', JSON.stringify(groupItems, null, 2));
+
+                // Store the source group
+                lastDragGroups = {
+                    from: e.target.dataset.group
+                };
             }
 
-            debug('=== Generated content ===');
-            debug(content);
+            function handleDragEnter(e) {
+                e.preventDefault();
+                e.currentTarget.classList.add('drag-over');
+            }
 
-            // ...rest of save function...
-            if (window.showSaveFilePicker) {
-                try {
-                    const handle = await window.showSaveFilePicker({
-                        suggestedName: 'playlist_sorted.m3u8',
-                        types: [{
-                            description: 'M3U8 Playlist',
-                            accept: {'text/plain': ['.m3u8']}
-                        }],
-                    });
+            function handleDragLeave(e) {
+                e.preventDefault();
+                if (e.relatedTarget && !e.currentTarget.contains(e.relatedTarget)) {
+                    e.currentTarget.classList.remove('drag-over');
+                }
+            }
+
+            function handleDragOver(e) {
+                e.preventDefault();
+                startAutoScroll(e);
+                
+                const container = e.target.closest('.playlist-container');
+                if (!container) return;
+
+                const dragElement = document.querySelector('.dragging');
+                if (!dragElement) return;
+
+                const items = Array.from(container.children)
+                    .filter(el => el.classList.contains('playlist-item'));
+                
+                const mouseY = e.clientY;
+                let insertBefore = null;
+                
+                // Находим элемент, перед которым нужно вставить
+                for (const item of items) {
+                    const rect = item.getBoundingClientRect();
+                    if (mouseY < rect.top + rect.height / 2) {
+                        insertBefore = item;
+                        break;
+                    }
+                }
+
+                // Определяем позицию для отображения
+                const insertIndex = insertBefore ? items.indexOf(insertBefore) : items.length;
+                
+                if (container.dataset.group === dragElement.dataset.group) {
+                    // Если перемещаем в той же группе
+                    const currentIndex = items.findIndex(item => 
+                        item.dataset.url === dragElement.dataset.url
+                    );
+                    if (currentIndex !== -1) {
+                        // Корректируем индекс с учетом удаления текущего элемента
+                        const displayPosition = insertIndex > currentIndex ? insertIndex : insertIndex + 1;
+                        setDragInfo(`Перемещение на позицию ${displayPosition} из ${items.length}`);
+                    }
+                } else {
+                    // Если перемещаем в другую группу
+                    setDragInfo(`Вставка в позицию ${insertIndex + 1} из ${items.length + 1}`);
+                }
+
+                // Обрабатываем плейсхолдер
+                const oldPlaceholder = document.querySelector('.drop-placeholder');
+                if (oldPlaceholder) oldPlaceholder.remove();
+                
+                const placeholder = document.createElement('div');
+                placeholder.className = 'drop-placeholder';
+                
+                if (insertBefore) {
+                    container.insertBefore(placeholder, insertBefore);
+                } else {
+                    container.appendChild(placeholder);
+                }
+            }
+
+            function handleDragEnd(e) {
+                stopAutoScroll();
+                e.target.classList.remove('dragging');
+                
+                const placeholder = document.querySelector('.drop-placeholder');
+                if (placeholder) placeholder.remove();
+
+                document.querySelectorAll('.playlist-container').forEach(container => {
+                    container.removeEventListener('dragenter', handleDragEnter);
+                    container.removeEventListener('dragleave', handleDragLeave);
+                    container.classList.remove('drag-over');
+                });
+
+                setDragInfo('');
+            }
+
+            function createPlaceholder() {
+                const oldPlaceholder = document.querySelector('.drop-placeholder');
+                if (oldPlaceholder) oldPlaceholder.remove();
+                
+                const placeholder = document.createElement('div');
+                placeholder.className = 'drop-placeholder';
+                return placeholder;
+            }
+
+            function getDragAfterElement(container, y) {
+                const draggableElements = [...container.querySelectorAll('.playlist-item:not(.dragging)')];
+                
+                return draggableElements.reduce((closest, child) => {
+                    const box = child.getBoundingClientRect();
+                    const offset = y - box.top - box.height / 2;
                     
-                    const writable = await handle.createWritable();
-                    await writable.write(content);
-                    await writable.close();
+                    if (offset < 0 && offset > closest.offset) {
+                        return { offset: offset, element: child };
+                    } else {
+                        return closest;
+                    }
+                }, { offset: Number.NEGATIVE_INFINITY }).element;
+            }
 
-                    // Выводим в консоль для проверки
-                    debug('=== Saved content ===');
-                    debug(content);
-                } catch (err) {
-                    console.error('Failed to save using modern API:', err);
+            let tooltip = null;
+
+            function handleItemHover(e) {
+                if (!DEBUG) return;
+                
+                const item = e.target;
+                const url = item.dataset.url;
+                
+                const playlistItem = playlistItems.find(pi => pi.url === url);
+                if (!playlistItem) return;
+
+                if (!tooltip) {
+                    tooltip = document.createElement('div');
+                    tooltip.className = 'tooltip';
+                    document.body.appendChild(tooltip);
+                }
+
+                tooltip.innerHTML = `
+                    Group: ${playlistItem.group}<br>
+                    Info: ${playlistItem.info}<br>
+                    URL: ${playlistItem.url}
+                `;
+
+                tooltip.style.left = e.clientX + 'px';
+                tooltip.style.top = e.clientY + 'px';
+            }
+
+            function handleItemLeave() {
+                if (tooltip) {
+                    tooltip.remove();
+                    tooltip = null;
+                }
+            }
+
+            function updateItemGroup(url, newGroup) {
+                const item = playlistItems.find(item => item.url === url);
+                if (!item) return;
+
+                item.group = newGroup;
+                if (!item.info) {
+                    item.info = `#EXTINF:-1,Unknown\n#EXTGRP:${newGroup}`;
+                } else if (item.info.includes('#EXTGRP:')) {
+                    item.info = item.info.replace(/#EXTGRP:.*(\r?\n|$)/, `#EXTGRP:${newGroup}\n`);
+                } else {
+                    item.info = item.info.trim() + `\n#EXTGRP:${newGroup}`;
+                }
+            }
+
+            function handleDrop(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                stopAutoScroll();
+                
+                const container = e.target.closest('.playlist-container');
+                if (!container) return;
+
+                // Store current collapse states
+                const collapsedGroups = new Set();
+                document.querySelectorAll('.group-container').forEach(group => {
+                    if (group.classList.contains('collapsed')) {
+                        const groupName = group.querySelector('.group-title').textContent.split(' (')[0];
+                        collapsedGroups.add(groupName);
+                    }
+                });
+                
+                // Store the target group
+                lastDragGroups = {
+                    ...lastDragGroups,
+                    to: container.dataset.group
+                };
+                
+                // Store scroll position BEFORE any DOM changes
+                const scrollPosition = window.pageYOffset;
+
+                // Store the active group BEFORE the DOM manipulation
+                const activeCategory = document.querySelector('.category-item.active');
+                const activeGroupName = activeCategory ? activeCategory.dataset.group : null;
+                
+                const dragData = JSON.parse(e.dataTransfer.getData('text/plain'));
+                const fromGroup = dragData.group;
+                const toGroup = container.dataset.group;
+                const url = dragData.url;
+                
+                const placeholder = document.querySelector('.drop-placeholder');
+                if (!placeholder) return;
+
+                // Находим индекс перемещаемого элемента
+                const itemIndex = playlistItems.findIndex(item => item.url === url);
+                if (itemIndex === -1) return;
+
+                // Определяем позицию для вставки относительно видимых элементов
+                const visibleItems = Array.from(container.children)
+                    .filter(el => el.classList.contains('playlist-item'));
+                
+                const insertBefore = visibleItems.find(item =>
+                    placeholder.compareDocumentPosition(item) & Node.DOCUMENT_POSITION_FOLLOWING);
+                
+                const insertIndex = insertBefore ? visibleItems.indexOf(insertBefore) : visibleItems.length;
+
+                // Создаем новый объект с обновленной группой
+                const movedItem = {
+                    ...playlistItems[itemIndex],
+                    group: toGroup
+                };
+
+                // Обновляем информацию о группе
+                movedItem.info = movedItem.info.includes('#EXTGRP:') 
+                    ? movedItem.info.replace(/#EXTGRP:.*(\r?\n|$)/, `#EXTGRP:${toGroup}\r\n`)
+                    : movedItem.info.trim() + `\n#EXTGRP:${toGroup}\r\n`;
+
+                // Находим индекс начала целевой группы 
+                const groupStartIndex = playlistItems.findIndex(item => item.group === toGroup);
+                const finalInsertIndex = groupStartIndex + insertIndex;
+
+                debug('=== Drop details ===');
+                debug('From group:', fromGroup);
+                debug('To group:', toGroup); 
+                debug('Insert index:', insertIndex);
+                debug('Group start:', groupStartIndex);
+                debug('Final index:', finalInsertIndex);
+
+                // Удаляем элемент из старого места
+                playlistItems.splice(itemIndex, 1);
+                
+                // Корректируем индекс вставки если удаляем элемент перед местом вставки
+                const adjustedIndex = itemIndex < finalInsertIndex ? finalInsertIndex - 1 : finalInsertIndex;
+                
+                // Вставляем элемент в новую позицию
+                playlistItems.splice(adjustedIndex, 0, movedItem);
+                
+                renderGroups();
+                if (activeGroupName) setActiveCategory(activeGroupName);
+
+                // Restore collapse states
+                document.querySelectorAll('.group-container').forEach(group => {
+                    const groupName = group.querySelector('.group-title').textContent.split(' (')[0];
+                    if (collapsedGroups.has(groupName)) {
+                        group.classList.add('collapsed');
+                    } else if (lastDragGroups && (groupName === lastDragGroups.from || groupName === lastDragGroups.to)) {
+                        group.classList.remove('collapsed');
+                    }
+                });
+                
+                // Restore scroll position AFTER render
+                window.scrollTo(0, scrollPosition);
+                
+                return false;
+            }
+
+            async function savePlaylist() {
+                let content = '#EXTM3U\r\n';  // Используем \r\n для совместимости
+                
+                debug('=== Before saving ===');
+                debug('Group order:', groupOrder);
+                debug('Playlist items:', 
+                    playlistItems.map(item => ({
+                        title: item.info.match(/,(.+?)(?:\r?\n|$)/)[1].trim(),
+                        group: item.group
+                    }))
+                );
+
+                // Проверяем, есть ли элементы в Buffer
+                const bufferItems = playlistItems.filter(item => item.group === 'Buffer');
+
+                // Обрабатываем группы в том порядке, в котором они находятся в groupOrder
+                for (const groupName of groupOrder) {
+                    // Пропускаем Buffer если он пустой
+                    if (groupName === 'Buffer' && bufferItems.length === 0) continue;
+                    // Получаем все элементы группы в порядке их следования в массиве
+                    const groupItems = playlistItems.filter(item => item.group === groupName);
+                    
+                    // Сохраняем каждый элемент группы
+                    groupItems.forEach(item => {
+                        if (item.info) {
+                            // Разделяем строки инфо, чтобы правильно обработать EXTGRP
+                            const infoLines = item.info.split(/\r?\n/);
+                            const extinf = infoLines[0];
+                            content += extinf + '\r\n';
+                            
+                            // Добавляем или обновляем EXTGRP
+                            if (infoLines.length > 1 && infoLines[1].startsWith('#EXTGRP:')) {
+                                content += `#EXTGRP:${item.group}\r\n`;
+                            } else {
+                                content += `#EXTGRP:${item.group}\r\n`;
+                            }
+                        }
+                        
+                        if (item.url) {
+                            content += item.url + '\r\n';
+                        }
+                    });
+                    // Если группа не Buffer и пустая, всё равно записываем только EXTGRP
+                    if (groupItems.length === 0 && groupName !== 'Buffer') {
+                        // Записываем пустую группу (EXTGRP без каналов)
+                        content += `#EXTINF:-1, \r\n#EXTGRP:${groupName}\r\n\r\n`;
+                    }
+                }
+
+                debug('=== Generated content ===');
+                debug(content);
+
+                // ...rest of save function...
+                if (window.showSaveFilePicker) {
+                    try {
+                        const handle = await window.showSaveFilePicker({
+                            suggestedName: 'playlist_sorted.m3u8',
+                            types: [{
+                                description: 'M3U8 Playlist',
+                                accept: {'text/plain': ['.m3u8']}
+                            }],
+                        });
+                        
+                        const writable = await handle.createWritable();
+                        await writable.write(content);
+                        await writable.close();
+
+                        // Выводим в консоль для проверки
+                        debug('=== Saved content ===');
+                        debug(content);
+                    } catch (err) {
+                        console.error('Failed to save using modern API:', err);
+                        fallbackSave(content);
+                    }
+                } else {
                     fallbackSave(content);
                 }
-            } else {
-                fallbackSave(content);
+
+                debug('=== Generated content ===');
+                debug(content);
             }
 
-            debug('=== Generated content ===');
-            debug(content);
-        }
+            function fallbackSave(content) {
+                const blob = new Blob([content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'playlist_sorted.m3u8';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
 
-        function fallbackSave(content) {
-            const blob = new Blob([content], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'playlist_sorted.m3u8';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
+            function handleCategoryDragStart(e) {
+                const item = e.target;
+                if (!item.classList.contains('category-item')) return;
+                e.dataTransfer.effectAllowed = 'move';
+                item.classList.add('dragging');
+                e.dataTransfer.setData('text/plain', JSON.stringify({
+                    type: 'category',
+                    group: item.dataset.group
+                }));
+                setTimeout(() => {
+                    item.classList.add('invisible');
+                }, 0);
+            }
 
-        function scrollToGroup(groupName) {
-            const targetGroup = Array.from(document.querySelectorAll('.group-container')).find(group => {
-                const groupTitle = group.querySelector('.group-title');
-                return groupTitle.textContent.split(' (')[0] === groupName;
+            function handleCategoryDragOver(e) {
+                e.preventDefault();
+                const container = document.getElementById('categoriesList');
+                const draggingElement = document.querySelector('.category-item.dragging');
+                if (!draggingElement) return;
+                const items = Array.from(container.children).filter(el =>
+                    el.classList.contains('category-item') && !el.classList.contains('dragging')
+                );
+                const mouseY = e.clientY;
+                let targetItem = null;
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
+                    const rect = item.getBoundingClientRect();
+                    if (mouseY < rect.top + rect.height / 2) {
+                        targetItem = item;
+                        break;
+                    }
+                }
+                const oldPlaceholder = container.querySelector('.drop-placeholder');
+                if (oldPlaceholder) oldPlaceholder.remove();
+                const placeholder = document.createElement('div');
+                placeholder.className = 'drop-placeholder';
+                if (targetItem) {
+                    container.insertBefore(placeholder, targetItem);
+                } else {
+                    container.appendChild(placeholder);
+                }
+            }
+
+            function handleCategoryDrop(e) {
+                e.preventDefault();
+                const container = document.getElementById('categoriesList');
+                const placeholder = container.querySelector('.drop-placeholder');
+                const dragData = JSON.parse(e.dataTransfer.getData('text/plain') || '{}');
+                if (dragData.type !== 'category') return;
+                const group = dragData.group;
+                const items = Array.from(container.children).filter(el =>
+                    el.classList.contains('category-item') || el.classList.contains('drop-placeholder')
+                );
+                const currentIndex = groupOrder.indexOf(group);
+                const placeholderIndex = items.indexOf(placeholder);
+                if (placeholderIndex === -1) return;
+                const finalIndex = currentIndex < placeholderIndex ? placeholderIndex - 1 : placeholderIndex;
+
+                // 1. Сохраняем старые позиции
+                const categoryItems = Array.from(container.children).filter(el => el.classList.contains('category-item'));
+                const oldRects = categoryItems.map(el => el.getBoundingClientRect());
+
+                // 2. Меняем DOM-порядок: перемещаем элемент в новое место
+                const draggingElement = categoryItems.find(el => el.dataset.group === group);
+                if (!draggingElement) return;
+                const refNode = placeholder.nextSibling;
+                container.insertBefore(draggingElement, refNode);
+                if (placeholder) placeholder.remove();
+
+                // 3. Сохраняем новые позиции
+                const newCategoryItems = Array.from(container.children).filter(el => el.classList.contains('category-item'));
+                const newRects = newCategoryItems.map(el => el.getBoundingClientRect());
+
+                // 4. Вычисляем разницу и задаём transform
+                newCategoryItems.forEach((el, i) => {
+                    const oldRect = oldRects[categoryItems.indexOf(el)];
+                    const newRect = newRects[i];
+                    if (oldRect) {
+                        const dx = oldRect.left - newRect.left;
+                        const dy = oldRect.top - newRect.top;
+                        el.style.transform = `translate(${dx}px, ${dy}px)`;
+                    }
+                });
+
+                // 5. Запускаем анимацию (сброс transform)
+                requestAnimationFrame(() => {
+                    newCategoryItems.forEach(el => {
+                        el.style.transition = 'transform 0.25s cubic-bezier(.4,2,.6,1)';
+                        el.style.transform = '';
+                    });
+                });
+
+                // 6. После окончания transition обновляем groupOrder и DOM
+                setTimeout(() => {
+                    newCategoryItems.forEach(el => {
+                        el.style.transition = '';
+                        el.style.transform = '';
+                    });
+                    const newOrder = groupOrder.filter(g => g !== group);
+                    newOrder.splice(finalIndex, 0, group);
+                    groupOrder = newOrder;
+                    // Если категория не активная, делаем её активной и перерисовываем окно каналов
+                    const activeCategory = document.querySelector('.category-item.active');
+                    if (!activeCategory || activeCategory.dataset.group !== group) {
+                        renderGroups();
+                        setActiveCategory(group);
+                        collapseAllGroupsExcept(group);
+                        scrollToGroup(group);
+                    } else {
+                        // Если категория активная, просто перерисовываем
+                        renderGroups();
+                        scrollToGroup(group);
+                    }
+                }, 260);
+            }
+
+            function handleCategoryDragEnd(e) {
+                e.target.classList.remove('dragging', 'invisible');
+                const placeholder = document.querySelector('.drop-placeholder');
+                if (placeholder) placeholder.remove();
+                setDragInfo('');
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const suffixList = document.getElementById('suffixList');
+
+                suffixList.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', e.target.textContent);
+                    e.target.classList.add('dragging');
+                });
+
+                suffixList.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    const draggingElement = document.querySelector('.suffix-item.dragging');
+                    const targetElement = e.target.closest('.suffix-item');
+
+                    if (!draggingElement || !targetElement || targetElement === draggingElement) {
+                        return;
+                    }
+
+                    const list = Array.from(suffixList.children);
+                    const dragIndex = list.indexOf(draggingElement);
+                    const targetIndex = list.indexOf(targetElement);
+
+                    if (dragIndex < targetIndex) {
+                        suffixList.insertBefore(draggingElement, targetElement.nextSibling);
+                    } else {
+                        suffixList.insertBefore(draggingElement, targetElement);
+                    }
+                });
+
+                suffixList.addEventListener('dragend', (e) => {
+                    e.target.classList.remove('dragging');
+                });
+
+                const categoriesList = document.getElementById('categoriesList');
+                categoriesList.addEventListener('dragover', handleCategoryDragOver);
+                categoriesList.addEventListener('drop', handleCategoryDrop);
+
+                document.getElementById('createGroupBtn').onclick = function() {
+                    document.getElementById('createGroupInput').value = '';
+                    document.getElementById('createGroupModal').style.display = 'flex';
+                    document.getElementById('createGroupInput').focus();
+                };
+                document.getElementById('createGroupModalCreateBtn').onclick = function() {
+                    let groupName = document.getElementById('createGroupInput').value.trim();
+                    if (!groupName) return;
+                    if (groupOrder.includes(groupName)) {
+                        alert('Group already exists!');
+                        return;
+                    }
+                    groupOrder.push(groupName);
+                    document.getElementById('createGroupModal').style.display = 'none';
+                    renderGroups();
+                };
+                document.getElementById('createGroupModalCancelBtn').onclick = function() {
+                    document.getElementById('createGroupModal').style.display = 'none';
+                };
+                document.getElementById('createGroupInput').addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        document.getElementById('createGroupModalCreateBtn').click();
+                    }
+                });
             });
 
-            if (targetGroup) {
-                targetGroup.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            function openSortDialog() {
+                document.getElementById('sortDialog').style.display = 'block';
+            }
 
-                // Add a small offset from the top
-                const headerOffset = 20;
-                const elementPosition = targetGroup.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            function closeSortDialog() {
+                document.getElementById('sortDialog').style.display = 'none';
+            }
 
-                window.scrollTo({
-                    top: offsetPosition,
-                    behavior: 'smooth'
+            function sortPlaylist() {
+                const sortOption = document.querySelector('input[name="sortOption"]:checked').value;
+                const sortScope = document.querySelector('input[name="sortScope"]:checked').value;
+
+                // Store the active group name before sorting
+                let activeGroupName = null;
+                const activeCategory = document.querySelector('.category-item.active');
+                if (activeCategory) {
+                    activeGroupName = activeCategory.dataset.group;
+                }
+
+                debug('Active group before sorting:', activeGroupName);
+
+                // Store the collapsed state of each group before sorting
+                const collapsedGroups = new Set();
+                document.querySelectorAll('.group-container').forEach(group => {
+                    if (group.classList.contains('collapsed')) {
+                        const groupTitle = group.querySelector('.group-title');
+                        const groupName = groupTitle.textContent.split(' (')[0];
+                        collapsedGroups.add(groupName);
+                    }
+                });
+
+                let groupNameToSort = null;
+
+                if (sortScope === 'all') {
+                    groupOrder.forEach(groupName => sortGroup(groupName, sortOption));
+                } else if (sortScope === 'group') {
+                    // Find the first expanded group
+                    const expandedGroup = document.querySelector('.group-container:not(.collapsed) .group-title');
+                    if (expandedGroup) {
+                        groupNameToSort = expandedGroup.textContent.split(' (')[0];
+                    } else {
+                        alert('Please expand a group first to sort.');
+                        closeSortDialog();
+                        return;
+                    }
+                    if (groupNameToSort) {
+                        sortGroup(groupNameToSort, sortOption);
+                    }
+                }
+
+                renderGroups();
+
+                debug('Active group after rendering:', activeGroupName);
+
+                // Restore the active group and simulate click on it
+                if (activeGroupName) {
+                    setActiveCategory(activeGroupName);
+                    // Находим кнопку активной категории и симулируем клик
+                    const activeButton = document.querySelector(`.category-item[data-group="${activeGroupName}"]`);
+                    if (activeButton) {
+                        activeButton.click();
+                    }
+                }
+
+                // Restore collapse states
+                document.querySelectorAll('.group-container').forEach(group => {
+                    const groupName = group.querySelector('.group-title').textContent.split(' (')[0];
+                    if (collapsedGroups.has(groupName)) {
+                        group.classList.add('collapsed');
+                    }
+                });
+
+                closeSortDialog();
+            }
+
+            function sortGroup(groupName, sortOption) {
+                const groupItems = playlistItems.filter(item => item.group === groupName);
+
+                if (sortOption === 'name_asc') {
+                    groupItems.sort((a, b) => {
+                        const titleA = a.info.match(/,(.+?)(?:\r?\n|$)/)?.[1]?.trim() || '';
+                        const titleB = b.info.match(/,(.+?)(?:\r?\n|$)/)?.[1]?.trim() || '';
+                        return titleA.localeCompare(titleB);
+                    });
+                } else if (sortOption === 'name_desc') {
+                    groupItems.sort((a, b) => {
+                        const titleA = a.info.match(/,(.+?)(?:\r?\n|$)/)?.[1]?.trim() || '';
+                        const titleB = b.info.match(/,(.+?)(?:\r?\n|$)/)?.[1]?.trim() || '';
+                        return titleB.localeCompare(titleA);
+                    });
+                } else if (sortOption === 'custom') {
+                    const suffixOrder = Array.from(document.querySelectorAll('#suffixList .suffix-item'))
+                        .map(item => item.textContent.trim());
+
+                    groupItems.sort((a, b) => {
+                        const titleA = a.info.match(/,(.+?)(?:\r?\n|$)/)?.[1]?.trim() || '';
+                        const titleB = b.info.match(/,(.+?)(?:\r?\n|$)/)?.[1]?.trim() || '';
+
+                        const suffixA = suffixOrder.find(suffix => titleA.includes(suffix)) || 'Other';
+                        const suffixB = suffixOrder.find(suffix => titleB.includes(suffix)) || 'Other';
+
+                        const indexA = suffixOrder.indexOf(suffixA);
+                        const indexB = suffixOrder.indexOf(suffixB);
+
+                        if (indexA !== -1 && indexB !== -1) {
+                            return indexA - indexB;
+                        } else if (indexA !== -1) {
+                            return -1;
+                        } else if (indexB !== -1) {
+                            return 1;
+                        } else {
+                            return titleA.localeCompare(titleB);
+                        }
+                    });
+                }
+
+                // Apply the sorted groupItems back to playlistItems
+                let currentIndex = 0;
+                for (let i = 0; i < playlistItems.length; i++) {
+                    if (playlistItems[i].group === groupName) {
+                        if (currentIndex < groupItems.length) {
+                            playlistItems[i] = groupItems[currentIndex];
+                            currentIndex++;
+                        }
+                    }
+                }
+                debug(`Group ${groupName} sorted with ${sortOption}`);
+            }
+            function setActiveCategory(groupName) {
+                activeGroupName = groupName;
+                const categories = document.querySelectorAll('.category-item');
+                categories.forEach(category => {
+                    if (category.dataset.group === groupName) {
+                        category.classList.add('active');
+                    } else {
+                        category.classList.remove('active');
+                    }
                 });
             }
-        }
-    </script>
-</body>
+
+            async function savePlaylist() {
+                let content = '#EXTM3U\r\n';  // Используем \r\n для совместимости
+                
+                debug('=== Before saving ===');
+                debug('Group order:', groupOrder);
+                debug('Playlist items:', 
+                    playlistItems.map(item => ({
+                        title: item.info.match(/,(.+?)(?:\r?\n|$)/)[1].trim(),
+                        group: item.group
+                    }))
+                );
+
+                // Проверяем, есть ли элементы в Buffer
+                const bufferItems = playlistItems.filter(item => item.group === 'Buffer');
+
+                // Обрабатываем группы в том порядке, в котором они находятся в groupOrder
+                for (const groupName of groupOrder) {
+                    // Пропускаем Buffer если он пустой
+                    if (groupName === 'Buffer' && bufferItems.length === 0) continue;
+                    // Получаем все элементы группы в порядке их следования в массиве
+                    const groupItems = playlistItems.filter(item => item.group === groupName);
+                    
+                    // Сохраняем каждый элемент группы
+                    groupItems.forEach(item => {
+                        if (item.info) {
+                            // Разделяем строки инфо, чтобы правильно обработать EXTGRP
+                            const infoLines = item.info.split(/\r?\n/);
+                            const extinf = infoLines[0];
+                            content += extinf + '\r\n';
+                            
+                            // Добавляем или обновляем EXTGRP
+                            if (infoLines.length > 1 && infoLines[1].startsWith('#EXTGRP:')) {
+                                content += `#EXTGRP:${item.group}\r\n`;
+                            } else {
+                                content += `#EXTGRP:${item.group}\r\n`;
+                            }
+                        }
+                        
+                        if (item.url) {
+                            content += item.url + '\r\n';
+                        }
+                    });
+                    // Если группа не Buffer и пустая, всё равно записываем только EXTGRP
+                    if (groupItems.length === 0 && groupName !== 'Buffer') {
+                        // Записываем пустую группу (EXTGRP без каналов)
+                        content += `#EXTINF:-1, \r\n#EXTGRP:${groupName}\r\n\r\n`;
+                    }
+                }
+
+                debug('=== Generated content ===');
+                debug(content);
+
+                // ...rest of save function...
+                if (window.showSaveFilePicker) {
+                    try {
+                        const handle = await window.showSaveFilePicker({
+                            suggestedName: 'playlist_sorted.m3u8',
+                            types: [{
+                                description: 'M3U8 Playlist',
+                                accept: {'text/plain': ['.m3u8']}
+                            }],
+                        });
+                        
+                        const writable = await handle.createWritable();
+                        await writable.write(content);
+                        await writable.close();
+
+                        // Выводим в консоль для проверки
+                        debug('=== Saved content ===');
+                        debug(content);
+                    } catch (err) {
+                        console.error('Failed to save using modern API:', err);
+                        fallbackSave(content);
+                    }
+                } else {
+                    fallbackSave(content);
+                }
+
+                debug('=== Generated content ===');
+                debug(content);
+            }
+
+            function fallbackSave(content) {
+                const blob = new Blob([content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'playlist_sorted.m3u8';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            function scrollToGroup(groupName) {
+                const channelsList = document.querySelector('.channels-list');
+                const targetGroup = Array.from(document.querySelectorAll('.group-container')).find(group => {
+                    const groupTitle = group.querySelector('.group-title');
+                    return groupTitle.textContent.split(' (')[0] === groupName;
+                });
+                if (channelsList && targetGroup) {
+                    const listRect = channelsList.getBoundingClientRect();
+                    const groupRect = targetGroup.getBoundingClientRect();
+                    const offset = groupRect.top - listRect.top + channelsList.scrollTop - 20;
+                    channelsList.scrollTo({
+                        top: offset,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+
+            // --- Автопрокрутка при drag&drop ---
+            function startAutoScroll(e) {
+                stopAutoScroll();
+                autoScrollInterval = setInterval(() => {
+                    const y = e.clientY;
+                    const windowHeight = window.innerHeight;
+                    if (y < 50) {
+                        window.scrollBy(0, -20);
+                    } else if (y > windowHeight - 50) {
+                        window.scrollBy(0, 20);
+                    }
+                }, 30);
+            }
+
+            function stopAutoScroll() {
+                if (autoScrollInterval) {
+                    clearInterval(autoScrollInterval);
+                    autoScrollInterval = null;
+                }
+            }
+
+            // --- Category item drag&drop stubs to fix ReferenceError ---
+            function handleCategoryItemDragOver(e) {
+                e.preventDefault();
+                const dragData = JSON.parse(e.dataTransfer.getData('text/plain') || '{}');
+                if (dragData.type !== 'item') return;
+                e.currentTarget.classList.add('drag-over');
+            }
+
+            function handleCategoryItemDragEnter(e) {
+                const dragData = JSON.parse(e.dataTransfer.getData('text/plain') || '{}');
+                if (dragData.type !== 'item') return;
+                e.currentTarget.classList.add('drag-over');
+            }
+
+            function handleCategoryItemDragLeave(e) {
+                e.currentTarget.classList.remove('drag-over');
+            }
+
+            function handleCategoryItemDrop(e) {
+                e.preventDefault();
+                e.currentTarget.classList.remove('drag-over');
+                const dragData = JSON.parse(e.dataTransfer.getData('text/plain') || '{}');
+                if (dragData.type !== 'item') return;
+                const url = dragData.url;
+                const toGroup = e.currentTarget.dataset.group;
+                const itemIndex = playlistItems.findIndex(item => item.url === url);
+                if (itemIndex === -1) return;
+                // Обновляем группу и EXTGRP
+                playlistItems[itemIndex].group = toGroup;
+                if (playlistItems[itemIndex].info.includes('#EXTGRP:')) {
+                    playlistItems[itemIndex].info = playlistItems[itemIndex].info.replace(/#EXTGRP:.*/g, `#EXTGRP:${toGroup}`);
+                } else {
+                    playlistItems[itemIndex].info = playlistItems[itemIndex].info.trim() + `\n#EXTGRP:${toGroup}`;
+                }
+                // Переместить в конец группы (без копирования)
+                const movedItem = playlistItems.splice(itemIndex, 1)[0];
+                // Найти индекс последнего элемента группы
+                let insertIndex = playlistItems.length;
+                for (let i = playlistItems.length - 1; i >= 0; i--) {
+                    if (playlistItems[i].group === toGroup) {
+                        insertIndex = i + 1;
+                        break;
+                    }
+                }
+                playlistItems.splice(insertIndex, 0, movedItem);
+                renderGroups();
+            }
+
+            window.addEventListener('DOMContentLoaded', adjustChannelsContainerPosition);
+            window.addEventListener('resize', adjustChannelsContainerPosition);
+            function adjustChannelsContainerPosition() {
+                const controlsPanel = document.querySelector('.controls-panel');
+                const container = document.querySelector('.channels-panels-wrapper');
+                if (controlsPanel && container) {
+                    const rect = controlsPanel.getBoundingClientRect();
+                    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    const controlsBottom = rect.bottom + scrollTop;
+                    container.style.top = (controlsBottom + 5) + 'px';
+                    container.style.height = `calc(100vh - ${controlsBottom }px)`;
+                    container.style.maxHeight = `calc(100vh - ${controlsBottom }px)`;
+                }
+            }
+        </script>
+    </body>
 </html>

@@ -8,8 +8,15 @@
 
 ## Возможности  
 
+![alt text](image.png)
+
 - Загрузка и разбор M3U8 плейлистов  
-- Перетаскивание каналов между группами  
+- Перетаскивание каналов между группами в окне каналов
+- Создание и удаление группы
+- Перетаскивание канала сразу в нужную группу
+- Перетаскивание канала в буффер и обратно
+- Сортировка каналов по наванию
+- Сортировка по типу канала (HD +2)
 - Управление группами с возможностью сворачивания  
 - Панель категорий для быстрой навигации  
 - Сохранение измененных плейлистов в формате `.m3u8`  
@@ -51,62 +58,61 @@
 
 ---
 
+# M3U8 Playlist Group Sorter
 
-# M3U8 Playlist Group Sorter  
+## Description
 
-## Description  
-
-A tool for sorting and organizing M3U8 playlists. Allows drag-and-drop reordering of channels and groups.  
-
----
-
-## Features  
-
-- Load and parse M3U8 playlist files  
-- Drag-and-drop channels between groups  
-- Manage groups with collapsible sections  
-- Category panel for quick navigation  
-- Save modified playlists in `.m3u8` format  
-- Support for `#EXTINF:` and `#EXTGRP:` tags  
+A tool for sorting and organizing M3U8 playlists. Allows you to drag and drop channels and groups to change their order.
 
 ---
 
-## How to Use  
+## Features
 
-1. **Open the Application**  
-   - Download the files to your computer  
-   - Open `index.html` in your browser  
+![alt text](image.png)
 
-2. **Load a Playlist**  
-   - Click the "Open Playlist" button  
-   - Select your M3U8 file  
-
-3. **Sort Channels**  
-   - Drag and drop channels between groups  
-   - Drop channels onto group names in the left panel for quick movement  
-   - Click group names in the left panel for quick navigation  
-
-4. **Manage Groups**  
-   - Drag and drop groups in the left panel to reorder them  
-   - Click group headers to collapse/expand groups  
-   - Channel count is displayed next to each group name  
-
-5. **Save Changes**  
-   - Click the "Save Playlist" button  
-   - Choose where to save the modified playlist  
-   - The file will be saved with the `.m3u8` extension  
+- Load and parse M3U8 playlists
+- Drag and drop channels between groups in the channel window
+- Create and delete groups
+- Instantly move a channel to the desired group
+- Move a channel to the buffer and back
+- Sort channels by name
+- Sort by channel type (HD +2)
+- Manage groups with collapsible sections
+- Category panel for quick navigation
+- Save modified playlists in `.m3u8` format
+- Support for `#EXTINF:` and `#EXTGRP:` tags
 
 ---
 
-## Browser Compatibility  
+## How to Use
 
-- Firefox  
-- Edge  
+1. **Open the Application**
+   - Download the files to your computer
+   - Open `index.html` in your browser
+
+2. **Load a Playlist**
+   - Click the "Open Playlist" button
+   - Select your M3U8 file
+
+3. **Sort Channels**
+   - Drag and drop channels between groups
+   - Drop channels onto group names in the left panel for quick movement
+   - Click group names in the left panel for quick navigation
+
+4. **Manage Groups**
+   - Drag and drop groups in the left panel to reorder them
+   - Click group headers to collapse/expand groups
+   - Channel count is displayed next to each group name
+
+5. **Save Changes**
+   - Click the "Save Playlist" button
+   - Choose where to save the modified playlist
+   - The file will be saved with the `.m3u8` extension
 
 ---
 
-## Known Limitations  
+## Browser Compatibility
 
-- Large playlists (1000+ channels) may load slowly  
-- Some special characters in group names may require proper encoding
+- Firefox
+- Edge
 
